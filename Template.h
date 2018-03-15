@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <string>
+#include <algorithm>
+#include <unordered_map>
 using namespace std;
 
 class Template
@@ -9,6 +12,12 @@ public:
 	int gcd(int a, int b);									//欧几里得算法
 	void ex_gcd(int a, int b, int &x, int &y);				//扩展欧几里得算法
 	vector<int> Prime_Factor(int n);						//分解质因数
+	int Longest_substring(string s);						//最长无重复子串
+	void merge_sort(vector<int> &target);					//归并排序
+	void quick_sort(vector<int> &target);					//快速排序
+private:
+	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
+	void quick_sort_recursive(vector<int> &target, int start, int end);
 };
 
 /*Eratosthenes筛法
@@ -63,7 +72,7 @@ void Template::ex_gcd(int a, int b, int &x, int &y)
 	{
 		x = 1;
 		y = 0;
-		return; p;.gy
+		return;
 	}
 	int x1, y1;
 	ex_gcd(b, a%b, x1, y1);
@@ -89,4 +98,86 @@ vector<int> Template::Prime_Factor(int n)
 		}
 	}
 	return res;
+}
+
+/*最长无重复子串
+**找出串s的最长无重复子串 例如"abcabcbb"的最长无重复子串为"abc"长度为3
+**返回参数即为最长无重复子串的长度
+***
+*/
+
+int Template::Longest_substring(string s)
+{
+	int length = s.length(), res = 0;
+	unordered_map<char, int> hash_map; 
+	int low = 0;
+	for (int high = 0 ; high < length; high++)
+	{
+		auto itr = hash_map.find(s[high]);
+		if (itr != hash_map.end())
+		{
+			low = max(itr->second, low);
+		}
+		bool flag;
+		flag = hash_map.insert({ s[high], high + 1 }).second;
+		if (!flag)
+		{
+			hash_map[s[high]] = high + 1;
+		}
+		res = max(res, high + 1 - low);
+	}
+	return res;
+}
+
+/*归并排序
+**以归并排序的方法排序容器target
+***
+*/
+
+void Template::merge_sort(vector<int> &target)
+{
+	vector<int> copy = target;
+	merge_sort_recursive(target, copy, 0, target.size() - 1);
+}
+void Template::merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end)
+{
+	if (start >= end) return;
+	int mid = (end - start + 1) / 2 + start;
+	merge_sort_recursive(target, copy, start, mid - 1);
+	merge_sort_recursive(target, copy, mid, end);
+	int start1 = start, start2 = mid, counter = start;
+	while (start1 <= mid - 1 && start2 <= end)
+		target[counter++] = copy[start1] < copy[start2] ? copy[start1++] : copy[start2++];
+	while (start2 <= end)
+		target[counter++] = copy[start2++];
+	while (start1 <= mid - 1)
+		target[counter++] = copy[start1++];
+	for (int i = start; i <= end; i++)
+	{
+		copy[i] = target[i];
+	}
+}
+
+/*快速排序
+**以快速排序的方法排序容器vector
+*/
+
+void Template::quick_sort(vector<int> &target)
+{
+	quick_sort_recursive(target, 0, target.size() - 1);
+}
+void Template::quick_sort_recursive(vector<int> &target, int start, int end)
+{
+	if (start >= end)
+		return;
+	int pivot_element = target[end];
+	int flag = start;
+	for (int j = start; j <= end - 1; j++)
+	{
+		if (target[j] < pivot_element)
+			std::swap(target[flag++], target[j]);
+	}
+	std::swap(target[flag], target[end]);
+	quick_sort_recursive(target, start, flag - 1);
+	quick_sort_recursive(target, flag + 1, end);
 }
