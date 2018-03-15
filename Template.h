@@ -2,19 +2,25 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <map>
+#include <list>
+#include <queue>
+#include <utility>
 #include <unordered_map>
+#include <iostream>
 using namespace std;
 
 class Template
 {
 public:
-	vector<bool> Eratosthenes_Sieve(int n);					//Eratosthenes筛法
-	int gcd(int a, int b);									//欧几里得算法
-	void ex_gcd(int a, int b, int &x, int &y);				//扩展欧几里得算法
-	vector<int> Prime_Factor(int n);						//分解质因数
-	int Longest_substring(string s);						//最长无重复子串
-	void merge_sort(vector<int> &target);					//归并排序
-	void quick_sort(vector<int> &target);					//快速排序
+	vector<bool> Eratosthenes_Sieve(int n);										//Eratosthenes筛法
+	int gcd(int a, int b);														//欧几里得算法
+	void ex_gcd(int a, int b, int &x, int &y);									//扩展欧几里得算法
+	vector<int> Prime_Factor(int n);											//分解质因数
+	int Longest_substring(string s);											//最长无重复子串
+	void merge_sort(vector<int> &target);										//归并排序
+	void quick_sort(vector<int> &target);										//快速排序
+	vector<int> topological_sort(vector<list<int>> adjacency_list);				//拓扑排序
 private:
 	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
 	void quick_sort_recursive(vector<int> &target, int start, int end);
@@ -180,4 +186,64 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 	std::swap(target[flag], target[end]);
 	quick_sort_recursive(target, start, flag - 1);
 	quick_sort_recursive(target, flag + 1, end);
+}
+
+/*拓扑排序
+**以带队列的方式对图进行拓扑排序
+**返回参数为排序后顶点的顺序
+***解释：0：将所有入度为0的顶点存入队列
+***		1：不断的弹出队列中的顶点元素，每弹出一个顶点元素，标记此顶点并将计数器加1，然后通过邻接列表访问此顶点指向的所有顶点
+***		3：将每个顶点的入度减1，若减1后入度为0则将此顶点存入队列 返回第0步
+*/
+
+vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
+{
+	map<int, int> vertices_indgree;										//全部顶点的入度表 first为顶点名称 second为此顶点的入度
+	vector<int> res;													//拓扑排序后所有顶点的下标表 first为顶点名称 second为此顶点所处的位置
+	bool cycle_found = false;											//若检测到图中有环则cycle_found = true；
+
+	//构建入度表
+	for (int i = 0; i < adjacency_list.size(); i++)
+	{
+		vertices_indgree.insert({ i,0 });
+	}
+	for (int i = 0; i < adjacency_list.size(); i++)
+	{
+		for (auto itr = adjacency_list[i].begin(); itr != adjacency_list[i].end(); itr++)
+		{
+			vertices_indgree[*itr]++;
+		}
+	}
+	//构建完毕
+
+	queue<pair<int, int>> que;
+	int counter = 0;
+	for (int i = 0; i < vertices_indgree.size(); i++)
+	{
+		if (vertices_indgree[i] == 0)
+		{
+			que.push({ i,vertices_indgree[i] });
+		}
+	}
+	while (!que.empty())
+	{
+		pair<int, int> vertice = que.front();
+		que.pop();
+		res.push_back(vertice.first);
+		counter++;
+		vertices_indgree[vertice.first] = -1;						//标记此顶点入度为-1以确保不会在访问此顶点
+		for (auto itr = adjacency_list[vertice.first].begin(); itr != adjacency_list[vertice.first].end(); itr++)
+		{
+			if (--vertices_indgree[*itr] == 0)
+			{
+				que.push({ *itr,vertices_indgree[*itr] });
+			}
+		}
+	}
+	if (counter != vertices_indgree.size())
+	{
+		cycle_found = true;
+	}
+	
+	return res;
 }
