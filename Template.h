@@ -13,14 +13,27 @@ using namespace std;
 class Template
 {
 public:
-	vector<bool> Eratosthenes_Sieve(int n);										//Eratosthenes筛法
-	int gcd(int a, int b);														//欧几里得算法
-	void ex_gcd(int a, int b, int &x, int &y);									//扩展欧几里得算法
-	vector<int> Prime_Factor(int n);											//分解质因数
-	int Longest_substring(string s);											//最长无重复子串
-	void merge_sort(vector<int> &target);										//归并排序
-	void quick_sort(vector<int> &target);										//快速排序
-	vector<int> topological_sort(vector<list<int>> adjacency_list);				//拓扑排序
+	vector<bool> Eratosthenes_Sieve(int n);										/* Eratosthenes筛法 */
+	int gcd(int a, int b);														/* 欧几里得算法 */
+	void ex_gcd(int a, int b, int &x, int &y);									/* 扩展欧几里得算法 */
+	vector<int> Prime_Factor(int n);											/* 分解质因数 */
+	int Longest_substring(string s);											/* 最长无重复子串 */
+	void merge_sort(vector<int> &target);										/* 归并排序 */
+	void quick_sort(vector<int> &target);										/* 快速排序 */
+	vector<int> topological_sort(vector<list<int>> adjacency_list);				/* 拓扑排序 */
+	class union_find															/* 并查集（加权优化）*/
+	{
+	public:
+		union_find(int n);				//初始化(共含有n个点)
+		int get_counter();				//获取连通分量的个数
+		int find(int x);				//获取点x所属的连通分量的id
+		void Union(int x1, int x2);		//连接点x1与x2
+		bool connected(int x1, int x2);	//判断点x1与x2是否相连
+	private:
+		int counter;					//连通分量数
+		vector<int> id;					//每个点所属的连通分量的id
+		vector<int> weight;				//每个连通分量所含的点数(权重)
+	};
 private:
 	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
 	void quick_sort_recursive(vector<int> &target, int start, int end);
@@ -246,4 +259,56 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 	}
 	
 	return res;
+}
+
+/*并查集
+**通过加权树的方法对其优化，使时间复杂度降至最低
+***解释：1.引入树的结构用来表示连通分量，初始时有n个数(n个连通分量)
+***     2.每次进行Union操作时将小树的根节点合并到大树的根节点上，同时也要增加大树的权值
+***       非根节点的id并非所属连通分量的id而是其父节点的名称
+***       只有根节点的id等于根节点的名称，同时也代表着所属连通分量的id
+***     3.每次进行find操作时若此节点非根节点，则不断迭代直至找出根节点，找出根节点后即可获取所属连通分量的id
+*/
+
+Template::union_find::union_find(int n)
+{
+	counter = n;
+	id.resize(n);
+	weight.resize(n);
+	for (int i = 0; i < n; i++)
+	{
+		id[i] = i;
+		weight[i] = 1;
+	}
+}
+int Template::union_find::get_counter()
+{
+	return counter;
+}
+int Template::union_find::find(int x)
+{
+	while (x != id[x])
+	{
+		x = id[x];
+	}
+	return x;
+}
+void Template::union_find::Union(int x1, int x2)
+{
+	int x1_id = find(x1);
+	int x2_id = find(x2);
+	if (weight[x1_id] > weight[x2_id])
+	{
+		id[x2_id] = x1_id;
+		weight[x1_id] += weight[x2_id];
+	}
+	else
+	{
+		id[x1_id] = x2_id;
+		weight[x2_id] += weight[x1_id];
+	}
+}
+bool Template::union_find::connected(int x1, int x2)
+{
+	return find(x1) == find(x2);
 }
