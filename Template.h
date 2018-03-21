@@ -21,6 +21,7 @@ public:
 	void merge_sort(vector<int> &target);										/* 归并排序 */
 	void quick_sort(vector<int> &target);										/* 快速排序 */
 	vector<int> topological_sort(vector<list<int>> adjacency_list);				/* 拓扑排序 */
+	pair<int, int> manacher(string &s);											/* Manacher算法(最长回文)*/
 	class union_find															/* 并查集（加权优化）*/
 	{
 	public:
@@ -261,6 +262,46 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 	return res;
 }
 
+/*Mannacher算法(最长回文)
+*/
+
+pair<int, int> Template::manacher(string &s)
+{
+	//创建
+	char spliter = 1;
+	string s_new;
+	for (int i = 0; i < s.length(); i++)
+	{
+		s_new.push_back(spliter);
+		s_new.push_back(s[i]);
+	}
+	s_new.push_back(spliter);
+	s = s_new;
+	vector<int> radius(s.length(), 0);
+	//创建完毕
+	pair<int, int> res = { 0,0 };
+	int max_right = 0;
+	int max_right_pos = 0;
+	for (int i = 0; i < s.length(); i++)
+	{
+		i < max_right ? radius[i] = min(radius[2 * max_right_pos - 1], max_right - i) : radius[i] = 1;
+		while (i - radius[i] >= 0 && i + radius[i] < s.length() && s[i - radius[i]] == s[i + radius[i]])
+			radius[i]++;
+		if (radius[i] + i - 1 > max_right)
+		{
+			max_right = radius[i] + i - 1;
+			max_right_pos = i;
+		}
+		if (res.first < radius[i] - 1)
+		{
+			res.first = radius[i] - 1;
+			res.second = i;
+		}
+	}
+	return res;
+}
+
+
 /*并查集
 **通过加权树的方法对其优化，使时间复杂度降至最低
 ***解释：1.引入树的结构用来表示连通分量，初始时有n个数(n个连通分量)
@@ -297,6 +338,8 @@ void Template::union_find::Union(int x1, int x2)
 {
 	int x1_id = find(x1);
 	int x2_id = find(x2);
+	if (x1_id == x2_id)
+		return;
 	if (weight[x1_id] > weight[x2_id])
 	{
 		id[x2_id] = x1_id;
@@ -307,6 +350,7 @@ void Template::union_find::Union(int x1, int x2)
 		id[x1_id] = x2_id;
 		weight[x2_id] += weight[x1_id];
 	}
+	counter--;
 }
 bool Template::union_find::connected(int x1, int x2)
 {
