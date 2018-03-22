@@ -22,7 +22,8 @@ public:
 	vector<int> topological_sort(vector<list<int>> adjacency_list);             /* 拓扑排序 */
 	int Longest_substring(string s);                                            /* 最长无重复子串 */
 	pair<int, int> manacher(string &s);                                         /* Manacher算法(最长回文)*/
-	class union_find                                                            /* 并查集（加权优化）*/
+	int KMP(string a, string b);                                                /* KMP(字符串匹配)*/
+	class union_find                                                            /* 并查集(加权优化)*/
 	{
 	public:
 		union_find(int n);				//初始化(共含有n个点)
@@ -309,6 +310,39 @@ pair<int, int> Template::manacher(string &s)
 	return res;
 }
 
+/*KMP算法(字符串匹配)
+**
+*/
+
+int Template::KMP(string a, string b)
+{
+	//构建部分匹配表
+	int b_length = b.length();
+	vector<int> partial_match_table(b_length, 0);
+	partial_match_table[0] =  -1;
+	int j = -1;
+	for (int i = 1; i < b_length; i++)
+	{
+		while (j > -1 && b[j + 1] != b[i])
+			j = partial_match_table[j];
+		if (b[j + 1] == b[i])
+			j = j + 1;
+		partial_match_table[i] = j;
+	}
+	//构建完毕
+	int a_length = a.length();
+	j = -1;
+	for (int i = 0; i < a_length; i++)
+	{
+		while (j >-1 && b[j + 1] != a[i])
+			j = partial_match_table[j];
+		if (b[j + 1] == a[i])
+			j = j + 1;
+		if (j == b_length - 1)
+			return i - b_length + 1;
+	}
+	return -1;
+}
 
 /*并查集
 **通过加权树的方法对其优化，使时间复杂度降至最低
