@@ -13,25 +13,22 @@ using namespace std;
 class Template
 {
 public:
-	vector<bool> Eratosthenes_Sieve(int n);										/* Eratosthenes筛法 */
-	int gcd(int a, int b);														/* 欧几里得算法 */
-	void ex_gcd(int a, int b, int &x, int &y);									/* 扩展欧几里得算法 */
-	vector<int> Prime_Factor(int n);											/* 分解质因数 */
-	int Longest_substring(string s);											/* 最长无重复子串 */
-	void merge_sort(vector<int> &target);										/* 归并排序 */
-	void quick_sort(vector<int> &target);										/* 快速排序 */
-	vector<int> topological_sort(vector<list<int>> adjacency_list);				/* 拓扑排序 */
-	pair<int, int> manacher(string &s);											/* Manacher算法(最长回文)*/
-	class union_find															/* 并查集（加权优化）*/
+	vector<bool> Eratosthenes_Sieve(int n);                                     /* Eratosthenes筛法 */
+	int gcd(int a, int b);                                                      /* 欧几里得算法 */
+	void ex_gcd(int a, int b, int &x, int &y);                                  /* 扩展欧几里得算法 */
+	vector<int> Prime_Factor(int n);                                            /* 分解质因数 */
+	void merge_sort(vector<int> &target);                                       /* 归并排序 */
+	void quick_sort(vector<int> &target);                                       /* 快速排序 */
+	vector<int> topological_sort(vector<list<int>> adjacency_list);             /* 拓扑排序 */
+	int Longest_substring(string s);                                            /* 最长无重复子串 */
+	pair<int, int> manacher(string &s);                                         /* Manacher算法(最长回文)*/
+	class union_find                                                            /* 并查集（加权优化）*/
 	{
 	public:
 		union_find(int n);				//初始化(共含有n个点)
-		int get_counter();				//获取连通分量的个数
 		int find(int x);				//获取点x所属的连通分量的id
 		void Union(int x1, int x2);		//连接点x1与x2
-		bool connected(int x1, int x2);	//判断点x1与x2是否相连
 	private:
-		int counter;					//连通分量数
 		vector<int> id;					//每个点所属的连通分量的id
 		vector<int> weight;				//每个连通分量所含的点数(权重)
 	};
@@ -116,35 +113,6 @@ vector<int> Template::Prime_Factor(int n)
 			res.push_back(i);
 			n /= i;
 		}
-	}
-	return res;
-}
-
-/*最长无重复子串
-**找出串s的最长无重复子串 例如"abcabcbb"的最长无重复子串为"abc"长度为3
-**返回参数即为最长无重复子串的长度
-***
-*/
-
-int Template::Longest_substring(string s)
-{
-	int length = s.length(), res = 0;
-	unordered_map<char, int> hash_map; 
-	int low = 0;
-	for (int high = 0 ; high < length; high++)
-	{
-		auto itr = hash_map.find(s[high]);
-		if (itr != hash_map.end())
-		{
-			low = max(itr->second, low);
-		}
-		bool flag;
-		flag = hash_map.insert({ s[high], high + 1 }).second;
-		if (!flag)
-		{
-			hash_map[s[high]] = high + 1;
-		}
-		res = max(res, high + 1 - low);
 	}
 	return res;
 }
@@ -262,12 +230,52 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 	return res;
 }
 
+/*最长无重复子串
+**找出串s的最长无重复子串 例如"abcabcbb"的最长无重复子串为"abc"长度为3
+**返回参数即为最长无重复子串的长度
+***
+*/
+
+int Template::Longest_substring(string s)
+{
+	int length = s.length(), res = 0;
+	unordered_map<char, int> hash_map;
+	int low = 0;
+	for (int high = 0; high < length; high++)
+	{
+		auto itr = hash_map.find(s[high]);
+		if (itr != hash_map.end())
+		{
+			low = max(itr->second, low);
+		}
+		bool flag;
+		flag = hash_map.insert({ s[high], high + 1 }).second;
+		if (!flag)
+		{
+			hash_map[s[high]] = high + 1;
+		}
+		res = max(res, high + 1 - low);
+	}
+	return res;
+}
+
 /*Mannacher算法(最长回文)
+**返回参数中first代表最长回文长度, second代表最长回文的对称点位置
+***解释：0：通过在字符串中插入间隔符消除回文长度奇偶性的问题(此时回文的长度必定为奇数)
+***     1：通过radius[i]表示以第i个字符为对称轴时回文的半径长度如 #a#a#的半径为3,显而易见半径的长度-1即为出去间隔符的回文的长度, aa长为2
+***     2：通过max_right表示所有曾访问过的回文字符串所能接触到的最右端的位置，max_right_pos表示此回文对称轴所在的位置
+***     3：若i>max_right则表明此位置从未被探测过，此时记radius[i]为1
+***        若i<max_right则此时观察i关于max_right_pos的对称点j（2*max_right_pos-i)
+***            若 以j为轴的串的最左端 在 以max_right_pos为轴的串的最左端 的右边此时记radius[i]为radius[j]
+***            若 以j为轴的串的最左端 在 以max_right_pos为轴的串的最左端 的左边此时记radius[i]为max_right-i
+***            此时可得语句radius[i] = min(radius[2*max_right_pos-i],max_right-i);
+***     4：标记radius[i]后继续以i为轴进行探测，当左右两端字符不相等时终止，每次探测成功便对radius[i]++
+***     5：探测完毕后尝试更新max_right,max_right_pos与res
 */
 
 pair<int, int> Template::manacher(string &s)
 {
-	//创建
+	//对字符串插入标记
 	char spliter = 1;
 	string s_new;
 	for (int i = 0; i < s.length(); i++)
@@ -278,13 +286,13 @@ pair<int, int> Template::manacher(string &s)
 	s_new.push_back(spliter);
 	s = s_new;
 	vector<int> radius(s.length(), 0);
-	//创建完毕
-	pair<int, int> res = { 0,0 };
+	//插入完毕
+	pair<int, int> res = { 0,0 }; 
 	int max_right = 0;
 	int max_right_pos = 0;
 	for (int i = 0; i < s.length(); i++)
 	{
-		i < max_right ? radius[i] = min(radius[2 * max_right_pos - 1], max_right - i) : radius[i] = 1;
+		i < max_right ? radius[i] = min(radius[2 * max_right_pos - i], max_right - i) : radius[i] = 1;
 		while (i - radius[i] >= 0 && i + radius[i] < s.length() && s[i - radius[i]] == s[i + radius[i]])
 			radius[i]++;
 		if (radius[i] + i - 1 > max_right)
@@ -313,7 +321,6 @@ pair<int, int> Template::manacher(string &s)
 
 Template::union_find::union_find(int n)
 {
-	counter = n;
 	id.resize(n);
 	weight.resize(n);
 	for (int i = 0; i < n; i++)
@@ -321,10 +328,6 @@ Template::union_find::union_find(int n)
 		id[i] = i;
 		weight[i] = 1;
 	}
-}
-int Template::union_find::get_counter()
-{
-	return counter;
 }
 int Template::union_find::find(int x)
 {
@@ -350,9 +353,4 @@ void Template::union_find::Union(int x1, int x2)
 		id[x1_id] = x2_id;
 		weight[x2_id] += weight[x1_id];
 	}
-	counter--;
-}
-bool Template::union_find::connected(int x1, int x2)
-{
-	return find(x1) == find(x2);
 }
