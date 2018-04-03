@@ -1,49 +1,64 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <algorithm>
 #include <map>
 #include <list>
 #include <queue>
-#include <utility>
 #include <unordered_map>
+#include <algorithm>
+#include <utility>
 #include <iostream>
+#include <functional>
+
 using namespace std;
 
 class Template
 {
 public:
-	vector<bool> Eratosthenes_Sieve(int n);                                     /* EratosthenesÉ¸·¨ */
-	int gcd(int a, int b);                                                      /* Å·¼¸ÀïµÃËã·¨ */
-	void ex_gcd(int a, int b, int &x, int &y);                                  /* À©Õ¹Å·¼¸ÀïµÃËã·¨ */
-	vector<int> Prime_Factor(int n);                                            /* ·Ö½âÖÊÒòÊı */
-	void merge_sort(vector<int> &target);                                       /* ¹é²¢ÅÅĞò */
-	void quick_sort(vector<int> &target);                                       /* ¿ìËÙÅÅĞò */
-	vector<int> topological_sort(vector<list<int>> adjacency_list);             /* ÍØÆËÅÅĞò */
-	int Longest_substring(string s);                                            /* ×î³¤ÎŞÖØ¸´×Ó´® */
-	pair<int, int> manacher(string &s);                                         /* ManacherËã·¨(×î³¤»ØÎÄ)*/
-	int KMP(string a, string b);                                                /* KMP(×Ö·û´®Æ¥Åä)*/
-	class union_find                                                            /* ²¢²é¼¯(¼ÓÈ¨ÓÅ»¯)*/
+	/* Eratosthenesç­›æ³• */
+	vector<bool> Eratosthenes_Sieve(int n);
+	/* æ¬§å‡ é‡Œå¾—ç®—æ³• */
+	int gcd(int a, int b);
+	/* æ‰©å±•æ¬§å‡ é‡Œå¾—ç®—æ³• */
+	void ex_gcd(int a, int b, int &x, int &y);
+	/* åˆ†è§£è´¨å› æ•° */
+	vector<int> Prime_Factor(int n);
+	/* å½’å¹¶æ’åº */
+	void merge_sort(vector<int> &target);
+	/* å¿«é€Ÿæ’åº */
+	void quick_sort(vector<int> &target);
+	/* æ‹“æ‰‘æ’åº */
+	vector<int> topological_sort(vector<list<int>> adjacency_list);
+	/* Dijkstra(å †ä¼˜åŒ–)*/
+	void dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &distance, int source);
+	/* æœ€é•¿æ— é‡å¤å­ä¸² */
+	int Longest_substring(string s);
+	/* Manacherç®—æ³•(æœ€é•¿å›æ–‡)*/
+	pair<int, int> manacher(string &s);
+	/* KMP(å­—ç¬¦ä¸²åŒ¹é…)*/
+	int KMP(string a, string b);
+	/* å¹¶æŸ¥é›†(åŠ æƒä¼˜åŒ–)*/
+	class union_find
 	{
 	public:
-		union_find(int n);				//³õÊ¼»¯(¹²º¬ÓĞn¸öµã)
-		int find(int x);				//»ñÈ¡µãxËùÊôµÄÁ¬Í¨·ÖÁ¿µÄid
-		void Union(int x1, int x2);		//Á¬½Óµãx1Óëx2
+		union_find(int n);				//åˆå§‹åŒ–(å…±å«æœ‰nä¸ªç‚¹)
+		int find(int x);				//è·å–ç‚¹xæ‰€å±çš„è¿é€šåˆ†é‡çš„id
+		void Union(int x1, int x2);		//è¿æ¥ç‚¹x1ä¸x2
 	private:
-		vector<int> id;					//Ã¿¸öµãËùÊôµÄÁ¬Í¨·ÖÁ¿µÄid
-		vector<int> weight;				//Ã¿¸öÁ¬Í¨·ÖÁ¿Ëùº¬µÄµãÊı(È¨ÖØ)
+		vector<int> id;					//æ¯ä¸ªç‚¹æ‰€å±çš„è¿é€šåˆ†é‡çš„id
+		vector<int> weight;				//æ¯ä¸ªè¿é€šåˆ†é‡æ‰€å«çš„ç‚¹æ•°(æƒé‡)
 	};
 private:
 	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
 	void quick_sort_recursive(vector<int> &target, int start, int end);
 };
 
-/*EratosthenesÉ¸·¨
-**É¸Ñ¡³önÒÔÄÚµÄËùÓĞÖÊÊı
-**·µ»Ø²ÎÊıresÖĞÈç¹ûres[i] == falseÔòiÎªÖÊÊı
-***½âÊÍ:¶ÔÓÚp<=n && p>1µÄËùÓĞÕûÊıp,±ê¼ÇËùÓĞ1p,2p,3p,4p......ÔòÎ´±ê¼ÇµÄÊı¼´ÎªÖÊÊı
-***    !res[i]:Ö»ĞèÅĞ¶ÏpÎªËØÊıµÄÇé¿ö£¬Èôp·ÇËØÊıÔòpÓëpµÄ±¶ÊıÔÚÖ®Ç°µÄÑ­»·ÒÑ¾­±ê¼Ç¹ı
-***    i * i:ÄÚ²ãÑ­»·Ö»Ğè´Ói*i¿ªÊ¼ÒòÎªÖ®Ç°µÄÑ­»·ÒÑ¾­±ê¼Ç¹ıi * x(x<i)µÄÇé¿ö
+/*Eratosthenesç­›æ³•
+**ç­›é€‰å‡ºnä»¥å†…çš„æ‰€æœ‰è´¨æ•°
+**è¿”å›å‚æ•°resä¸­å¦‚æœres[i] == falseåˆ™iä¸ºè´¨æ•°
+***è§£é‡Š:å¯¹äºp<=n && p>1çš„æ‰€æœ‰æ•´æ•°p,æ ‡è®°æ‰€æœ‰1p,2p,3p,4p......åˆ™æœªæ ‡è®°çš„æ•°å³ä¸ºè´¨æ•°
+***    !res[i]:åªéœ€åˆ¤æ–­pä¸ºç´ æ•°çš„æƒ…å†µï¼Œè‹¥péç´ æ•°åˆ™pä¸pçš„å€æ•°åœ¨ä¹‹å‰çš„å¾ªç¯å·²ç»æ ‡è®°è¿‡
+***    i * i:å†…å±‚å¾ªç¯åªéœ€ä»i*iå¼€å§‹å› ä¸ºä¹‹å‰çš„å¾ªç¯å·²ç»æ ‡è®°è¿‡i * x(x<i)çš„æƒ…å†µ
 */
 
 vector<bool> Template::Eratosthenes_Sieve(int n)
@@ -64,9 +79,9 @@ vector<bool> Template::Eratosthenes_Sieve(int n)
 	return res;
 }
 
-/*Å·¼¸ÀïµÃËã·¨£¨Õ·×ªÏà³ı·¨£©
-**ÕÒ³öaÓëbµÄ×î´ó¹«Ô¼Êı
-**·µ»Ø²ÎÊıÎªaÓëbµÄ×î´ó¹«Ô¼Êı
+/*æ¬§å‡ é‡Œå¾—ç®—æ³•ï¼ˆè¾—è½¬ç›¸é™¤æ³•ï¼‰
+**æ‰¾å‡ºaä¸bçš„æœ€å¤§å…¬çº¦æ•°
+**è¿”å›å‚æ•°ä¸ºaä¸bçš„æœ€å¤§å…¬çº¦æ•°
 */
 
 int Template::gcd(int a, int b)
@@ -74,14 +89,14 @@ int Template::gcd(int a, int b)
 	return b == 0 ? a : gcd(b, a%b);
 }
 
-/*À©Õ¹Å·¼¸ÀïµÃËã·¨
-**ÕÒ³öax + by = gcd(a,b)µÄÒ»¸öx,yÕûÊı½â
-**²ÎÊıx,y¼´ÎªÉÏÊöÕûÊıµÄÒ»¶ÔÕûÊı½â
-***½âÊÍ£º
-***		ÍÆÀí1£ºµ±b = 0Ê±ax + by = gcd(a,b) = a,´ËÊ±x = 1,È¡y = 0;
-***		ÍÆÀí2£ºÉèax1 + by1 = gcd(a,b), bx2 + a%by2 = gcd(b,a%b) ÓÉÅ·¼¸ÀïµÃËã·¨µİ¹é¿ÉÖªgcd(a,b) = gcd(b,a%b)
-***			  Ôò¿ÉµÃµÈÊ½a(x1) + b(y1) = a(y2) + b(x2 - (a/b)*y2)ÊÓa,bÎªÎ´ÖªÊıÓÉµÈÊ½ºãµÈ¶¨Àí¿ÉµÃ
-***		   	  µİÍÆ¹ØÏµ x1 = y2 , y1 = x2 - (a/b)*y2;
+/*æ‰©å±•æ¬§å‡ é‡Œå¾—ç®—æ³•
+**æ‰¾å‡ºax + by = gcd(a,b)çš„ä¸€ä¸ªx,yæ•´æ•°è§£
+**å‚æ•°x,yå³ä¸ºä¸Šè¿°æ•´æ•°çš„ä¸€å¯¹æ•´æ•°è§£
+***è§£é‡Šï¼š
+***		æ¨ç†1ï¼šå½“b = 0æ—¶ax + by = gcd(a,b) = a,æ­¤æ—¶x = 1,å–y = 0;
+***		æ¨ç†2ï¼šè®¾ax1 + by1 = gcd(a,b), bx2 + a%by2 = gcd(b,a%b) ç”±æ¬§å‡ é‡Œå¾—ç®—æ³•é€’å½’å¯çŸ¥gcd(a,b) = gcd(b,a%b)
+***			  åˆ™å¯å¾—ç­‰å¼a(x1) + b(y1) = a(y2) + b(x2 - (a/b)*y2)è§†a,bä¸ºæœªçŸ¥æ•°ç”±ç­‰å¼æ’ç­‰å®šç†å¯å¾—
+***		   	  é€’æ¨å…³ç³» x1 = y2 , y1 = x2 - (a/b)*y2;
 */
 
 void Template::ex_gcd(int a, int b, int &x, int &y)
@@ -98,10 +113,10 @@ void Template::ex_gcd(int a, int b, int &x, int &y)
 	y = x1 - (a / b)*y1;
 }
 
-/*·Ö½âÖÊÒòÊı£¨Î¨Ò»·Ö½â¶¨Àí£©
-**½«ÕûÊınÓÃ¶à¸öÖÊÊıÏà³ËµÄĞÎÊ½±íÊ¾
-**·µ»Ø²ÎÊıresÖĞµÄÔªËØ¼´ÎªnµÄÖÊÊıÒò×Ó
-***ËãÊõ»ù±¾¶¨Àí¿É±íÊöÎª£ºÈÎºÎÒ»¸ö´óÓÚ1µÄ×ÔÈ»Êı N,Èç¹ûN²»ÎªÖÊÊı£¬ÄÇÃ´N¿ÉÒÔÎ¨Ò»·Ö½â³ÉÓĞÏŞ¸öÖÊÊıµÄ³Ë»ı;
+/*åˆ†è§£è´¨å› æ•°ï¼ˆå”¯ä¸€åˆ†è§£å®šç†ï¼‰
+**å°†æ•´æ•°nç”¨å¤šä¸ªè´¨æ•°ç›¸ä¹˜çš„å½¢å¼è¡¨ç¤º
+**è¿”å›å‚æ•°resä¸­çš„å…ƒç´ å³ä¸ºnçš„è´¨æ•°å› å­
+***ç®—æœ¯åŸºæœ¬å®šç†å¯è¡¨è¿°ä¸ºï¼šä»»ä½•ä¸€ä¸ªå¤§äº1çš„è‡ªç„¶æ•° N,å¦‚æœNä¸ä¸ºè´¨æ•°ï¼Œé‚£ä¹ˆNå¯ä»¥å”¯ä¸€åˆ†è§£æˆæœ‰é™ä¸ªè´¨æ•°çš„ä¹˜ç§¯;
 */
 
 vector<int> Template::Prime_Factor(int n)
@@ -118,8 +133,8 @@ vector<int> Template::Prime_Factor(int n)
 	return res;
 }
 
-/*¹é²¢ÅÅĞò
-**ÒÔ¹é²¢ÅÅĞòµÄ·½·¨ÅÅĞòÈİÆ÷target
+/*å½’å¹¶æ’åº
+**ä»¥å½’å¹¶æ’åºçš„æ–¹æ³•æ’åºå®¹å™¨target
 ***
 */
 
@@ -147,8 +162,8 @@ void Template::merge_sort_recursive(vector<int> &target, std::vector<int> &copy,
 	}
 }
 
-/*¿ìËÙÅÅĞò
-**ÒÔ¿ìËÙÅÅĞòµÄ·½·¨ÅÅĞòÈİÆ÷vector
+/*å¿«é€Ÿæ’åº
+**ä»¥å¿«é€Ÿæ’åºçš„æ–¹æ³•æ’åºå®¹å™¨vector
 */
 
 void Template::quick_sort(vector<int> &target)
@@ -171,21 +186,21 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 	quick_sort_recursive(target, flag + 1, end);
 }
 
-/*ÍØÆËÅÅĞò
-**ÒÔ´ø¶ÓÁĞµÄ·½Ê½¶ÔÍ¼½øĞĞÍØÆËÅÅĞò
-**·µ»Ø²ÎÊıÎªÅÅĞòºó¶¥µãµÄË³Ğò
-***½âÊÍ£º0£º½«ËùÓĞÈë¶ÈÎª0µÄ¶¥µã´æÈë¶ÓÁĞ
-***		1£º²»¶ÏµÄµ¯³ö¶ÓÁĞÖĞµÄ¶¥µãÔªËØ£¬Ã¿µ¯³öÒ»¸ö¶¥µãÔªËØ£¬±ê¼Ç´Ë¶¥µã²¢½«¼ÆÊıÆ÷¼Ó1£¬È»ºóÍ¨¹ıÁÚ½ÓÁĞ±í·ÃÎÊ´Ë¶¥µãÖ¸ÏòµÄËùÓĞ¶¥µã
-***		3£º½«Ã¿¸ö¶¥µãµÄÈë¶È¼õ1£¬Èô¼õ1ºóÈë¶ÈÎª0Ôò½«´Ë¶¥µã´æÈë¶ÓÁĞ ·µ»ØµÚ0²½
+/*æ‹“æ‰‘æ’åº
+**ä»¥å¸¦é˜Ÿåˆ—çš„æ–¹å¼å¯¹å›¾è¿›è¡Œæ‹“æ‰‘æ’åº
+**è¿”å›å‚æ•°ä¸ºæ’åºåé¡¶ç‚¹çš„é¡ºåº
+***è§£é‡Šï¼š0ï¼šå°†æ‰€æœ‰å…¥åº¦ä¸º0çš„é¡¶ç‚¹å­˜å…¥é˜Ÿåˆ—
+***		1ï¼šä¸æ–­çš„å¼¹å‡ºé˜Ÿåˆ—ä¸­çš„é¡¶ç‚¹å…ƒç´ ï¼Œæ¯å¼¹å‡ºä¸€ä¸ªé¡¶ç‚¹å…ƒç´ ï¼Œæ ‡è®°æ­¤é¡¶ç‚¹å¹¶å°†è®¡æ•°å™¨åŠ 1ï¼Œç„¶åé€šè¿‡é‚»æ¥åˆ—è¡¨è®¿é—®æ­¤é¡¶ç‚¹æŒ‡å‘çš„æ‰€æœ‰é¡¶ç‚¹
+***		3ï¼šå°†æ¯ä¸ªé¡¶ç‚¹çš„å…¥åº¦å‡1ï¼Œè‹¥å‡1åå…¥åº¦ä¸º0åˆ™å°†æ­¤é¡¶ç‚¹å­˜å…¥é˜Ÿåˆ— è¿”å›ç¬¬0æ­¥
 */
 
 vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 {
-	map<int, int> vertices_indgree;										//È«²¿¶¥µãµÄÈë¶È±í firstÎª¶¥µãÃû³Æ secondÎª´Ë¶¥µãµÄÈë¶È
-	vector<int> res;													//ÍØÆËÅÅĞòºóËùÓĞ¶¥µãµÄÏÂ±ê±í firstÎª¶¥µãÃû³Æ secondÎª´Ë¶¥µãËù´¦µÄÎ»ÖÃ
-	bool cycle_found = false;											//Èô¼ì²âµ½Í¼ÖĞÓĞ»·Ôòcycle_found = true£»
+	map<int, int> vertices_indgree;										//å…¨éƒ¨é¡¶ç‚¹çš„å…¥åº¦è¡¨ firstä¸ºé¡¶ç‚¹åç§° secondä¸ºæ­¤é¡¶ç‚¹çš„å…¥åº¦
+	vector<int> res;													//æ‹“æ‰‘æ’åºåæ‰€æœ‰é¡¶ç‚¹çš„ä¸‹æ ‡è¡¨ firstä¸ºé¡¶ç‚¹åç§° secondä¸ºæ­¤é¡¶ç‚¹æ‰€å¤„çš„ä½ç½®
+	bool cycle_found = false;											//è‹¥æ£€æµ‹åˆ°å›¾ä¸­æœ‰ç¯åˆ™cycle_found = trueï¼›
 
-	//¹¹½¨Èë¶È±í
+	//æ„å»ºå…¥åº¦è¡¨
 	for (int i = 0; i < adjacency_list.size(); i++)
 	{
 		vertices_indgree.insert({ i,0 });
@@ -197,7 +212,7 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 			vertices_indgree[*itr]++;
 		}
 	}
-	//¹¹½¨Íê±Ï
+	//æ„å»ºå®Œæ¯•
 
 	queue<pair<int, int>> que;
 	int counter = 0;
@@ -214,7 +229,7 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 		que.pop();
 		res.push_back(vertice.first);
 		counter++;
-		vertices_indgree[vertice.first] = -1;						//±ê¼Ç´Ë¶¥µãÈë¶ÈÎª-1ÒÔÈ·±£²»»áÔÚ·ÃÎÊ´Ë¶¥µã
+		vertices_indgree[vertice.first] = -1;						//æ ‡è®°æ­¤é¡¶ç‚¹å…¥åº¦ä¸º-1ä»¥ç¡®ä¿ä¸ä¼šåœ¨è®¿é—®æ­¤é¡¶ç‚¹
 		for (auto itr = adjacency_list[vertice.first].begin(); itr != adjacency_list[vertice.first].end(); itr++)
 		{
 			if (--vertices_indgree[*itr] == 0)
@@ -231,9 +246,56 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 	return res;
 }
 
-/*×î³¤ÎŞÖØ¸´×Ó´®
-**ÕÒ³ö´®sµÄ×î³¤ÎŞÖØ¸´×Ó´® ÀıÈç"abcabcbb"µÄ×î³¤ÎŞÖØ¸´×Ó´®Îª"abc"³¤¶ÈÎª3
-**·µ»Ø²ÎÊı¼´Îª×î³¤ÎŞÖØ¸´×Ó´®µÄ³¤¶È
+/*Dijkstra(å †ä¼˜åŒ–)
+**å‚æ•°åˆ—è¡¨ä¸­:adjacency_matrix[a][b]çš„å€¼è‹¥ä¸º0åˆ™ä»£è¡¨aä¸ä¸bç›¸è¿ï¼Œè‹¥å€¼å¤§äº0åˆ™ä¸ºaåˆ°bçš„è¾¹çš„æƒé‡
+**		   sourceä»£è¡¨åŸç‚¹ï¼Œä»¥è¯¥ç‚¹è¿›è¡Œè·¯å¾„è®¡ç®—
+**         knownè‹¥ä¸ºtrueåˆ™ä»£è¡¨æ­¤ç‚¹æ›¾ç»è®¿é—®è¿‡ï¼Œé»˜è®¤ä¸ºfalse
+**         distanceä»£è¡¨æ­¤ç‚¹ä¸åŸç‚¹çš„æœ€çŸ­è·¯å¾„ï¼Œé»˜è®¤ä¸º-1
+***è§£é‡Š:1.è·å–ä¼˜å…ˆé˜Ÿåˆ—(å°é¡¶å †)queçš„é¡¶å…ƒç´ 
+***    2.è®¿é—®æ‰€æœ‰è¯¥ç‚¹æ‰€æŒ‡å‘çš„ç‚¹ï¼Œå¹¶ä»¥æœ€å°å€¼çš„æ–¹å¼æ›´æ”¹distance
+***    3.è‹¥è¢«æŒ‡å‘çš„ç‚¹ä»æœªè¢«è®¿é—®è¿‡ï¼Œåˆ™å°†å…¶å‹å…¥ä¼˜å…ˆé˜Ÿåˆ—ä¸­
+*/
+
+
+void Template::dijkstra(vector<vector<int>> adjacency_matrix,vector<bool> &known,vector<int> &distance, int source)
+{
+	/*cmp å‡½æ•° æ­¤å¤„æ— æ³•å®ç°
+	struct cmp  
+    {  
+        bool operator()(int a,int b)  
+        {   
+            return distance[a]>distance[b];  
+        }   
+    }; 
+	*/
+	distance[source] = 0;
+	priority_queue<int, vector<int>> que;	//æ­¤å¤„éœ€æ”¹å†™ä¸ºpriority_queue<int, vector<int>,cmp> que;
+	que.push(source);
+	while (!que.empty())
+	{
+		int tmp = que.top();
+		known[tmp] = true;
+		que.pop();
+		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
+		{
+			if (adjacency_matrix[tmp][i] == 0)
+				continue;
+			if (distance[i] == -1 || distance[i]>distance[tmp] + adjacency_matrix[tmp][i])
+			{
+				distance[i] = distance[tmp] + adjacency_matrix[tmp][i];
+				if (!known[i])
+				{
+					known[i] = true;
+					que.push(i);
+				}
+			}
+		}
+	}
+}
+
+/*æœ€é•¿æ— é‡å¤å­ä¸²
+**æ‰¾å‡ºä¸²sçš„æœ€é•¿æ— é‡å¤å­ä¸² ä¾‹å¦‚"abcabcbb"çš„æœ€é•¿æ— é‡å¤å­ä¸²ä¸º"abc"é•¿åº¦ä¸º3
+**è¿”å›å‚æ•°å³ä¸ºæœ€é•¿æ— é‡å¤å­ä¸²çš„é•¿åº¦
 ***
 */
 
@@ -260,23 +322,23 @@ int Template::Longest_substring(string s)
 	return res;
 }
 
-/*MannacherËã·¨(×î³¤»ØÎÄ)
-**·µ»Ø²ÎÊıÖĞfirst´ú±í×î³¤»ØÎÄ³¤¶È, second´ú±í×î³¤»ØÎÄµÄ¶Ô³ÆµãÎ»ÖÃ
-***½âÊÍ£º0£ºÍ¨¹ıÔÚ×Ö·û´®ÖĞ²åÈë¼ä¸ô·ûÏû³ı»ØÎÄ³¤¶ÈÆæÅ¼ĞÔµÄÎÊÌâ(´ËÊ±»ØÎÄµÄ³¤¶È±Ø¶¨ÎªÆæÊı)
-***     1£ºÍ¨¹ıradius[i]±íÊ¾ÒÔµÚi¸ö×Ö·ûÎª¶Ô³ÆÖáÊ±»ØÎÄµÄ°ë¾¶³¤¶ÈÈç #a#a#µÄ°ë¾¶Îª3,ÏÔ¶øÒ×¼û°ë¾¶µÄ³¤¶È-1¼´Îª³öÈ¥¼ä¸ô·ûµÄ»ØÎÄµÄ³¤¶È, aa³¤Îª2
-***     2£ºÍ¨¹ımax_right±íÊ¾ËùÓĞÔø·ÃÎÊ¹ıµÄ»ØÎÄ×Ö·û´®ËùÄÜ½Ó´¥µ½µÄ×îÓÒ¶ËµÄÎ»ÖÃ£¬max_right_pos±íÊ¾´Ë»ØÎÄ¶Ô³ÆÖáËùÔÚµÄÎ»ÖÃ
-***     3£ºÈôi>max_rightÔò±íÃ÷´ËÎ»ÖÃ´ÓÎ´±»Ì½²â¹ı£¬´ËÊ±¼Çradius[i]Îª1
-***        Èôi<max_rightÔò´ËÊ±¹Û²ìi¹ØÓÚmax_right_posµÄ¶Ô³Æµãj£¨2*max_right_pos-i)
-***            Èô ÒÔjÎªÖáµÄ´®µÄ×î×ó¶Ë ÔÚ ÒÔmax_right_posÎªÖáµÄ´®µÄ×î×ó¶Ë µÄÓÒ±ß´ËÊ±¼Çradius[i]Îªradius[j]
-***            Èô ÒÔjÎªÖáµÄ´®µÄ×î×ó¶Ë ÔÚ ÒÔmax_right_posÎªÖáµÄ´®µÄ×î×ó¶Ë µÄ×ó±ß´ËÊ±¼Çradius[i]Îªmax_right-i
-***            ´ËÊ±¿ÉµÃÓï¾äradius[i] = min(radius[2*max_right_pos-i],max_right-i);
-***     4£º±ê¼Çradius[i]ºó¼ÌĞøÒÔiÎªÖá½øĞĞÌ½²â£¬µ±×óÓÒÁ½¶Ë×Ö·û²»ÏàµÈÊ±ÖÕÖ¹£¬Ã¿´ÎÌ½²â³É¹¦±ã¶Ôradius[i]++
-***     5£ºÌ½²âÍê±Ïºó³¢ÊÔ¸üĞÂmax_right,max_right_posÓëres
+/*Mannacherç®—æ³•(æœ€é•¿å›æ–‡)
+**è¿”å›å‚æ•°ä¸­firstä»£è¡¨æœ€é•¿å›æ–‡é•¿åº¦, secondä»£è¡¨æœ€é•¿å›æ–‡çš„å¯¹ç§°ç‚¹ä½ç½®
+***è§£é‡Šï¼š0ï¼šé€šè¿‡åœ¨å­—ç¬¦ä¸²ä¸­æ’å…¥é—´éš”ç¬¦æ¶ˆé™¤å›æ–‡é•¿åº¦å¥‡å¶æ€§çš„é—®é¢˜(æ­¤æ—¶å›æ–‡çš„é•¿åº¦å¿…å®šä¸ºå¥‡æ•°)
+***     1ï¼šé€šè¿‡radius[i]è¡¨ç¤ºä»¥ç¬¬iä¸ªå­—ç¬¦ä¸ºå¯¹ç§°è½´æ—¶å›æ–‡çš„åŠå¾„é•¿åº¦å¦‚ #a#a#çš„åŠå¾„ä¸º3,æ˜¾è€Œæ˜“è§åŠå¾„çš„é•¿åº¦-1å³ä¸ºå‡ºå»é—´éš”ç¬¦çš„å›æ–‡çš„é•¿åº¦, aaé•¿ä¸º2
+***     2ï¼šé€šè¿‡max_rightè¡¨ç¤ºæ‰€æœ‰æ›¾è®¿é—®è¿‡çš„å›æ–‡å­—ç¬¦ä¸²æ‰€èƒ½æ¥è§¦åˆ°çš„æœ€å³ç«¯çš„ä½ç½®ï¼Œmax_right_posè¡¨ç¤ºæ­¤å›æ–‡å¯¹ç§°è½´æ‰€åœ¨çš„ä½ç½®
+***     3ï¼šè‹¥i>max_rightåˆ™è¡¨æ˜æ­¤ä½ç½®ä»æœªè¢«æ¢æµ‹è¿‡ï¼Œæ­¤æ—¶è®°radius[i]ä¸º1
+***        è‹¥i<max_rightåˆ™æ­¤æ—¶è§‚å¯Ÿiå…³äºmax_right_posçš„å¯¹ç§°ç‚¹jï¼ˆ2*max_right_pos-i)
+***            è‹¥ ä»¥jä¸ºè½´çš„ä¸²çš„æœ€å·¦ç«¯ åœ¨ ä»¥max_right_posä¸ºè½´çš„ä¸²çš„æœ€å·¦ç«¯ çš„å³è¾¹æ­¤æ—¶è®°radius[i]ä¸ºradius[j]
+***            è‹¥ ä»¥jä¸ºè½´çš„ä¸²çš„æœ€å·¦ç«¯ åœ¨ ä»¥max_right_posä¸ºè½´çš„ä¸²çš„æœ€å·¦ç«¯ çš„å·¦è¾¹æ­¤æ—¶è®°radius[i]ä¸ºmax_right-i
+***            æ­¤æ—¶å¯å¾—è¯­å¥radius[i] = min(radius[2*max_right_pos-i],max_right-i);
+***     4ï¼šæ ‡è®°radius[i]åç»§ç»­ä»¥iä¸ºè½´è¿›è¡Œæ¢æµ‹ï¼Œå½“å·¦å³ä¸¤ç«¯å­—ç¬¦ä¸ç›¸ç­‰æ—¶ç»ˆæ­¢ï¼Œæ¯æ¬¡æ¢æµ‹æˆåŠŸä¾¿å¯¹radius[i]++
+***     5ï¼šæ¢æµ‹å®Œæ¯•åå°è¯•æ›´æ–°max_right,max_right_posä¸res
 */
 
 pair<int, int> Template::manacher(string &s)
 {
-	//¶Ô×Ö·û´®²åÈë±ê¼Ç
+	//å¯¹å­—ç¬¦ä¸²æ’å…¥æ ‡è®°
 	char spliter = 1;
 	string s_new;
 	for (int i = 0; i < s.length(); i++)
@@ -287,7 +349,7 @@ pair<int, int> Template::manacher(string &s)
 	s_new.push_back(spliter);
 	s = s_new;
 	vector<int> radius(s.length(), 0);
-	//²åÈëÍê±Ï
+	//æ’å…¥å®Œæ¯•
 	pair<int, int> res = { 0,0 }; 
 	int max_right = 0;
 	int max_right_pos = 0;
@@ -310,13 +372,13 @@ pair<int, int> Template::manacher(string &s)
 	return res;
 }
 
-/*KMPËã·¨(×Ö·û´®Æ¥Åä)
+/*KMPç®—æ³•(å­—ç¬¦ä¸²åŒ¹é…)
 **
 */
 
 int Template::KMP(string a, string b)
 {
-	//¹¹½¨²¿·ÖÆ¥Åä±í
+	//æ„å»ºéƒ¨åˆ†åŒ¹é…è¡¨
 	int b_length = b.length();
 	vector<int> partial_match_table(b_length, 0);
 	partial_match_table[0] =  -1;
@@ -329,7 +391,7 @@ int Template::KMP(string a, string b)
 			j = j + 1;
 		partial_match_table[i] = j;
 	}
-	//¹¹½¨Íê±Ï
+	//æ„å»ºå®Œæ¯•
 	int a_length = a.length();
 	j = -1;
 	for (int i = 0; i < a_length; i++)
@@ -344,13 +406,13 @@ int Template::KMP(string a, string b)
 	return -1;
 }
 
-/*²¢²é¼¯
-**Í¨¹ı¼ÓÈ¨Ê÷µÄ·½·¨¶ÔÆäÓÅ»¯£¬Ê¹Ê±¼ä¸´ÔÓ¶È½µÖÁ×îµÍ
-***½âÊÍ£º1.ÒıÈëÊ÷µÄ½á¹¹ÓÃÀ´±íÊ¾Á¬Í¨·ÖÁ¿£¬³õÊ¼Ê±ÓĞn¸öÊı(n¸öÁ¬Í¨·ÖÁ¿)
-***     2.Ã¿´Î½øĞĞUnion²Ù×÷Ê±½«Ğ¡Ê÷µÄ¸ù½ÚµãºÏ²¢µ½´óÊ÷µÄ¸ù½ÚµãÉÏ£¬Í¬Ê±Ò²ÒªÔö¼Ó´óÊ÷µÄÈ¨Öµ
-***       ·Ç¸ù½ÚµãµÄid²¢·ÇËùÊôÁ¬Í¨·ÖÁ¿µÄid¶øÊÇÆä¸¸½ÚµãµÄÃû³Æ
-***       Ö»ÓĞ¸ù½ÚµãµÄidµÈÓÚ¸ù½ÚµãµÄÃû³Æ£¬Í¬Ê±Ò²´ú±í×ÅËùÊôÁ¬Í¨·ÖÁ¿µÄid
-***     3.Ã¿´Î½øĞĞfind²Ù×÷Ê±Èô´Ë½Úµã·Ç¸ù½Úµã£¬Ôò²»¶Ïµü´úÖ±ÖÁÕÒ³ö¸ù½Úµã£¬ÕÒ³ö¸ù½Úµãºó¼´¿É»ñÈ¡ËùÊôÁ¬Í¨·ÖÁ¿µÄid
+/*å¹¶æŸ¥é›†
+**é€šè¿‡åŠ æƒæ ‘çš„æ–¹æ³•å¯¹å…¶ä¼˜åŒ–ï¼Œä½¿æ—¶é—´å¤æ‚åº¦é™è‡³æœ€ä½
+***è§£é‡Šï¼š1.å¼•å…¥æ ‘çš„ç»“æ„ç”¨æ¥è¡¨ç¤ºè¿é€šåˆ†é‡ï¼Œåˆå§‹æ—¶æœ‰nä¸ªæ•°(nä¸ªè¿é€šåˆ†é‡)
+***     2.æ¯æ¬¡è¿›è¡ŒUnionæ“ä½œæ—¶å°†å°æ ‘çš„æ ¹èŠ‚ç‚¹åˆå¹¶åˆ°å¤§æ ‘çš„æ ¹èŠ‚ç‚¹ä¸Šï¼ŒåŒæ—¶ä¹Ÿè¦å¢åŠ å¤§æ ‘çš„æƒå€¼
+***       éæ ¹èŠ‚ç‚¹çš„idå¹¶éæ‰€å±è¿é€šåˆ†é‡çš„idè€Œæ˜¯å…¶çˆ¶èŠ‚ç‚¹çš„åç§°
+***       åªæœ‰æ ¹èŠ‚ç‚¹çš„idç­‰äºæ ¹èŠ‚ç‚¹çš„åç§°ï¼ŒåŒæ—¶ä¹Ÿä»£è¡¨ç€æ‰€å±è¿é€šåˆ†é‡çš„id
+***     3.æ¯æ¬¡è¿›è¡Œfindæ“ä½œæ—¶è‹¥æ­¤èŠ‚ç‚¹éæ ¹èŠ‚ç‚¹ï¼Œåˆ™ä¸æ–­è¿­ä»£ç›´è‡³æ‰¾å‡ºæ ¹èŠ‚ç‚¹ï¼Œæ‰¾å‡ºæ ¹èŠ‚ç‚¹åå³å¯è·å–æ‰€å±è¿é€šåˆ†é‡çš„id
 */
 
 Template::union_find::union_find(int n)
