@@ -118,25 +118,21 @@ int main()
 	**将此段写在main函数外
 	int source = 0;
 	Distance[source] = 0;
-	priority_queue<int, vector<int>, cmp> que;	//cmp需写为，distance[a]>distance[b] 此处不便于实现
+	priority_queue<int, vector<int>, cmp> que;
 	que.push(source);
 	while (!que.empty())
 	{
 		int tmp = que.top();
-		known[tmp] = true;
 		que.pop();
+		known[tmp] = true;
 		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
 		{
-			if (adjacency_matrix[tmp][i] == 0)
+			if (adjacency_matrix[tmp][i] == 0 || known[i])
 				continue;
-			if (Distance[i] == -1 || Distance[i]>Distance[tmp] + adjacency_matrix[tmp][i])
+			if (Distance[i] == -1 || Distance[tmp] + adjacency_matrix[tmp][i] < Distance[i])
 			{
 				Distance[i] = Distance[tmp] + adjacency_matrix[tmp][i];
-				if (!known[i])
-				{
-					known[i] = true;
-					que.push(i);
-				}
+				que.push(i);
 			}
 		}
 	}
@@ -144,6 +140,24 @@ int main()
 		cout << i << endl;
 	*/
 
+	/*unit test for Bash_game
+	if (obj.Bash_game(20, 3))
+	{
+		cout << "先手胜" << endl;
+	}
+	else
+	{
+		cout << "后手胜" << endl;
+	}
+	if (obj.Bash_game(20, 2))
+	{
+		cout << "先手胜";
+	}
+	else
+	{
+		cout << "后手胜";
+	}
+	*/
 
     return 0;
 }
