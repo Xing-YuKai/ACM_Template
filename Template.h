@@ -31,7 +31,7 @@ public:
 	vector<int> topological_sort(vector<list<int>> adjacency_list);
 	/* Dijkstra(堆优化)*/
 	void dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source);
-	/* SPFA */
+	/* SPFA(负环判断) */
 	void SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain, vector<int> &Distance ,int source);
 	/* 最长无重复子串 */
 	int Longest_substring(string s);
