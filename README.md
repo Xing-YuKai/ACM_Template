@@ -11,6 +11,7 @@
 * 快速排序
 * 拓扑排序
 * Dijkstra(堆优化)
+* SPFA(负环判断)
 * 最长无重复子串
 * Manacher算法
 * KMP算法
