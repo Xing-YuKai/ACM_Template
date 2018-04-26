@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <utility>
+#include <limits>
 #include <iostream>
 #include <functional>
 
@@ -33,6 +34,8 @@ public:
 	void dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source);
 	/* SPFA(负环判断) */
 	void SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain, vector<int> &Distance ,int source);
+	/* Floyd(路径记录)*/
+	void Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &Distance, vector<vector<int>> &next_vertex);
 	/* 最长无重复子串 */
 	int Longest_substring(string s);
 	/* Manacher算法(最长回文)*/
@@ -158,9 +161,7 @@ void Template::merge_sort_recursive(vector<int> &target, std::vector<int> &copy,
 	while (start1 <= mid - 1)
 		target[counter++] = copy[start1++];
 	for (int i = start; i <= end; i++)
-	{
 		copy[i] = target[i];
-	}
 }
 
 
@@ -249,11 +250,11 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 
 
 /*Dijkstra(堆优化)
-**参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连，若值大于0则为a到b的边的权重
+**参数列表中:adjacency_matrix[a][b]的值若为INF则代表a不与b相连，若值大于0则为a到b的边的权重
 **		   source代表原点，以该点进行路径计算
 **         known若为true则代表此点曾经访问过，默认为false
-**         Distance代表此点与原点的最短路径，默认为-1
-**         (Distance与adjacency_matrix的默认值应视题意做出调整)
+**         Distance代表此点与原点的最短路径，默认为INF
+**         (Distance与adjacency_matrix的默认值INF应视题意做出调整,INF默认为numeric_limits<int>::max())
 ***解释:1.获取优先队列(小顶堆)que的顶元素
 ***    2.访问所有该点所指向的点，并对其进行松弛
 ***    3.若被松弛的点从未被访问过，则将其压入优先队列中
@@ -279,9 +280,9 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix,vector<bool> &known
 		que.pop();
 		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
 		{
-			if (adjacency_matrix[tmp][i] == 0)
+			if (adjacency_matrix[tmp][i] == numeric_limits<int>::max())
 				continue;
-			if (Distance[i] == -1 || Distance[i]>Distance[tmp] + adjacency_matrix[tmp][i])
+			if (Distance[i]>Distance[tmp] + adjacency_matrix[tmp][i])
 			{
 				Distance[i] = Distance[tmp] + adjacency_matrix[tmp][i];
 				if (!known[i])
@@ -296,11 +297,11 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix,vector<bool> &known
 
 
 /*SPFA(负环判断)
-**参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连，若值非0则为a到b的边的权重
+**参数列表中:adjacency_matrix[a][b]的值若为INF则代表a不与b相连，若值非0则为a到b的边的权重
 **		   source代表原点，以该点进行路径计算
 **         contain若为true则代表此点在队列当中，默认为false
-**         Distance代表此点与原点的最短路径，默认为-1
-**         (Distance与adjacency_matrix的默认值应视题意做出调整)
+**         Distance代表此点与原点的最短路径，默认为INF
+**         (Distance与adjacency_matrix的默认值INF应视题意做出调整,INF默认为numeric_limits<int>::max())
 ***解释:1.通过容器in_times记录每个节点进入队列的次数，若次数大于总节点数则该图内包含负环
 ***    2.获取队列的队头元素
 ***    3.访问该节点所指向的节点，对被指向节点进行松弛
@@ -321,7 +322,7 @@ void Template::SPFA(vector<vector<int>> adjacency_matrix,vector<bool> &contain,v
 		contain[tmp] = false;
 		for(int i = 0;i<adjacency_matrix[tmp].size();i++)
 		{
-			if (adjacency_matrix[tmp][i] == 0)
+			if (adjacency_matrix[tmp][i] == numeric_limits<int>::max())
 				continue;
 			if(Distance[i] > Distance[tmp] + adjacency_matrix[tmp][i])
 			{
@@ -336,6 +337,39 @@ void Template::SPFA(vector<vector<int>> adjacency_matrix,vector<bool> &contain,v
 						cout<<"!!!Negative Circle Founded!!!";
 						return;
 					}
+				}
+			}
+		}
+	}
+}
+
+
+/*Floyd(路径记录)
+**
+*/
+void Template::Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &Distance, vector<vector<int>> &next_vertex)
+{
+	//初始化Distance 与 next_vertex
+	int vertex_num = adjacency_matrix.size();
+	for(int i = 0; i < vertex_num; i++)
+	{
+		for(int j = 0; j < vertex_num; j++)
+		{
+			Distance[i][j] = adjacency_matrix[i][j];
+			next_vertex[i][j] = j;
+		}
+	}
+	//Floyd
+	for(int mid = 0; mid < vertex_num; mid++)
+	{
+		for(int start = 0; start < vertex_num; start++)
+		{
+			for(int end = 0; end < vertex_num; end ++)
+			{
+				if(Distance[start][end] > Distance[start][mid] + Distance[mid][end])
+				{
+					Distance[start][end] = Distance[start][mid] + Distance[mid][end];
+					next_vertex[start][end] = next_vertex[start][mid];
 				}
 			}
 		}
