@@ -28,6 +28,10 @@ public:
 	void merge_sort(vector<int> &target);
 	/* 快速排序 */
 	void quick_sort(vector<int> &target);
+	/* 广度优先搜索 */
+	void BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source);
+	/* 深度优先搜索 */
+	void DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source);
 	/* 拓扑排序 */
 	vector<int> topological_sort(vector<list<int>> adjacency_list);
 	/* Dijkstra(堆优化)*/
@@ -186,6 +190,50 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 	std::swap(target[flag], target[end]);
 	quick_sort_recursive(target, start, flag - 1);
 	quick_sort_recursive(target, flag + 1, end);
+}
+
+
+/*广度优先搜索
+**参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连
+**		   source代表起点
+**         known若为true则代表此点曾经访问过，默认为false
+***解释：以广度优先的方式从起点source开始遍历整个图         
+*/
+void Template::BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source)
+{
+	queue<int> que;
+	que.push(source);
+	known[source] = true;
+	while(!que.empty())
+	{
+		int tmp = que.front();
+		que.pop();
+		for(int i = 0; i < adjacency_matrix[tmp].size(); i++)
+		{
+			if(!adjacency_matrix[tmp][i] || known[i])
+				continue;
+			que.push(i);
+			known[i] = true;
+		}
+	}
+}
+
+
+/*深度优先搜索
+**参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连
+**		   source代表起点
+**         known若为true则代表此点曾经访问过，默认为false
+***解释：以深度优先的方式从起点source开始遍历整个图    
+*/
+void Template::DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source)
+{
+	known[source] = true;
+	for(int i = 0; i < adjacency_matrix[source].size(); i++)
+	{
+		if(!adjacency_matrix[source][i] || known[i])
+			continue;
+		DFS(adjacency_matrix,known,i);
+	}
 }
 
 
