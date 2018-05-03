@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <string>
 #include <map>
@@ -18,50 +19,72 @@ class Template
 public:
 	/* Eratosthenes筛法 */
 	vector<bool> Eratosthenes_Sieve(int n);
+
 	/* 欧几里得算法 */
 	int gcd(int a, int b);
+
 	/* 扩展欧几里得算法 */
 	void ex_gcd(int a, int b, int &x, int &y);
+
 	/* 分解质因数 */
 	vector<int> Prime_Factor(int n);
+
 	/* 归并排序 */
 	void merge_sort(vector<int> &target);
+
 	/* 快速排序 */
 	void quick_sort(vector<int> &target);
+
 	/* 广度优先搜索 */
 	void BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source);
+
 	/* 深度优先搜索 */
 	void DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source);
+
 	/* 拓扑排序 */
 	vector<int> topological_sort(vector<list<int>> adjacency_list);
+
 	/* Dijkstra(堆优化)*/
 	void dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source);
+
 	/* SPFA(负环判断) */
-	void SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain, vector<int> &Distance ,int source);
+	void SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain, vector<int> &Distance, int source);
+
 	/* Floyd(路径记录)*/
 	void Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &Distance, vector<vector<int>> &next_vertex);
+
 	/* Prim */
 	void prim(vector<vector<int>> adjacency_matrix, vector<int> &weight, vector<int> &previous);
+
+	/* Kruskal */
+	int kruskal(vector<pair<int, pair<int, int>>> &edges);
+
 	/* 最长无重复子串 */
 	int Longest_substring(string s);
+
 	/* Manacher算法(最长回文)*/
 	pair<int, int> manacher(string &s);
+
 	/* KMP(字符串匹配)*/
 	int KMP(string a, string b);
+
 	/* 并查集(加权优化+路径压缩)*/
 	class union_find
 	{
 	public:
-		union_find(int n);				//初始化(共含有n个点)
-		int find(int x);				//获取点x所属的连通分量的id
-		void Union(int x1, int x2);		//连接点x1与x2
+		union_find(int n);                //初始化(共含有n个点)
+		int find(int x);                //获取点x所属的连通分量的id
+		void Union(int x1, int x2);        //连接点x1与x2
 	private:
-		vector<int> id;					//每个点所属的连通分量的id
-		vector<int> weight;				//每个连通分量所含的点数(权重)
+		vector<int> id;                    //每个点所属的连通分量的id
+		vector<int> weight;                //每个连通分量所含的点数(权重)
 	};
+
 private:
 	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
+
 	void quick_sort_recursive(vector<int> &target, int start, int end);
+
 	const int INF = numeric_limits<int>::max();
 };
 
@@ -154,6 +177,7 @@ void Template::merge_sort(vector<int> &target)
 	vector<int> copy = target;
 	merge_sort_recursive(target, copy, 0, target.size() - 1);
 }
+
 void Template::merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end)
 {
 	if (start >= end) return;
@@ -179,6 +203,7 @@ void Template::quick_sort(vector<int> &target)
 {
 	quick_sort_recursive(target, 0, target.size() - 1);
 }
+
 void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 {
 	if (start >= end)
@@ -249,14 +274,14 @@ void Template::DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, in
 */
 vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 {
-	map<int, int> vertices_indgree;										//全部顶点的入度表 first为顶点名称 second为此顶点的入度
-	vector<int> res;													//拓扑排序后所有顶点的下标表 first为顶点名称 second为此顶点所处的位置
-	bool cycle_found = false;											//若检测到图中有环则cycle_found = true；
+	map<int, int> vertices_indgree;                                        //全部顶点的入度表 first为顶点名称 second为此顶点的入度
+	vector<int> res;                                                    //拓扑排序后所有顶点的下标表 first为顶点名称 second为此顶点所处的位置
+	bool cycle_found = false;                                            //若检测到图中有环则cycle_found = true；
 
 	//构建入度表
 	for (int i = 0; i < adjacency_list.size(); i++)
 	{
-		vertices_indgree.insert({ i,0 });
+		vertices_indgree.insert({i, 0});
 	}
 	for (int i = 0; i < adjacency_list.size(); i++)
 	{
@@ -273,7 +298,7 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 	{
 		if (vertices_indgree[i] == 0)
 		{
-			que.push({ i,vertices_indgree[i] });
+			que.push({i, vertices_indgree[i]});
 		}
 	}
 	while (!que.empty())
@@ -282,12 +307,12 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 		que.pop();
 		res.push_back(vertice.first);
 		counter++;
-		vertices_indgree[vertice.first] = -1;						//标记此顶点入度为-1以确保不会在访问此顶点
+		vertices_indgree[vertice.first] = -1;                        //标记此顶点入度为-1以确保不会在访问此顶点
 		for (auto itr = adjacency_list[vertice.first].begin(); itr != adjacency_list[vertice.first].end(); itr++)
 		{
 			if (--vertices_indgree[*itr] == 0)
 			{
-				que.push({ *itr,vertices_indgree[*itr] });
+				que.push({*itr, vertices_indgree[*itr]});
 			}
 		}
 	}
@@ -310,7 +335,7 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 ***    2.访问所有该点所指向的未被确认点，并对其进行松弛
 ***    3.若松弛成功，则将其压入优先队列中
 */
-void Template::dijkstra(vector<vector<int>> adjacency_matrix,vector<bool> &known,vector<int> &Distance, int source)
+void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source)
 {
 	Distance[source] = 0;
 	priority_queue<pair<int, int>, vector<pair<int, int>, greater<pair<int, int>>> que;
@@ -346,7 +371,7 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix,vector<bool> &known
 ***    3.访问该节点所指向的节点，对被指向节点进行松弛
 ***    4.若松弛成功，将被指向的节点压入队列，并更新该点进入队列的次数
 */
-void Template::SPFA(vector<vector<int>> adjacency_matrix,vector<bool> &contain,vector<int> &Distance, int source)
+void Template::SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain, vector<int> &Distance, int source)
 {
 	vector<int> in_times(adjacency_matrix.size(), 0);
 	Distance[source] = 0;
@@ -386,26 +411,27 @@ void Template::SPFA(vector<vector<int>> adjacency_matrix,vector<bool> &contain,v
 /*Floyd(路径记录)
 **
 */
-void Template::Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &Distance, vector<vector<int>> &next_vertex)
+void
+Template::Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &Distance, vector<vector<int>> &next_vertex)
 {
 	//初始化Distance 与 next_vertex
 	int vertex_num = adjacency_matrix.size();
-	for(int i = 0; i < vertex_num; i++)
+	for (int i = 0; i < vertex_num; i++)
 	{
-		for(int j = 0; j < vertex_num; j++)
+		for (int j = 0; j < vertex_num; j++)
 		{
 			Distance[i][j] = adjacency_matrix[i][j];
 			next_vertex[i][j] = j;
 		}
 	}
 	//Floyd
-	for(int mid = 0; mid < vertex_num; mid++)
+	for (int mid = 0; mid < vertex_num; mid++)
 	{
-		for(int start = 0; start < vertex_num; start++)
+		for (int start = 0; start < vertex_num; start++)
 		{
-			for(int end = 0; end < vertex_num; end ++)
+			for (int end = 0; end < vertex_num; end++)
 			{
-				if(Distance[start][end] > Distance[start][mid] + Distance[mid][end])
+				if (Distance[start][end] > Distance[start][mid] + Distance[mid][end])
 				{
 					Distance[start][end] = Distance[start][mid] + Distance[mid][end];
 					next_vertex[start][end] = next_vertex[start][mid];
@@ -416,7 +442,7 @@ void Template::Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &
 }
 
 
-/*Prim(最短路径)
+/*Prim(最小生成树)
 **参数列表中:adjacency_matrix[a][b]的值若为INF则代表a不与b相连，若值非INF则为a到b的边的权重
 **         weight代表在最小生成树中以此点为终点的边的权重，默认为INF
 **         previous代表在最小生成树中此点的父节点，默认为-1
@@ -452,6 +478,34 @@ void Template::prim(vector<vector<int>> adjacency_matrix, vector<int> &weight, v
 }
 
 
+/*Kruskal(最小生成树(可用于带负权值的边的图))
+**参数列表中:edges为图中所有的边first为边的权重second为边的起点与终点
+**返回参数:最小生成树的总权值
+***解释:1.先将边的集合以权重升序排序
+***    2.每次选取权值最小的边，尝试将其添加进最小生成树中
+***    3.若添加此边后最小生成树中不存在环，则添加成功(借助并查集判断)
+*/
+int Template::kruskal(vector<pair<int, pair<int, int>>> &edges)
+{
+	int weight = 0;
+	union_find d_set(edges.size());
+	sort(edges.begin(), edges.end());
+	for (int i = 0; i < edges.size(); i++)
+	{
+		int u = edges[i].second.first;
+		int v = edges[i].second.second;
+		int u_id = d_set.find(u);
+		int v_id = d_set.find(v);
+		if (u_id != v_id)
+		{
+			d_set.Union(u_id, v_id);
+			weight += edges[i].first;
+		}
+	}
+	return weight;
+}
+
+
 /*最长无重复子串
 **找出串s的最长无重复子串 例如"abcabcbb"的最长无重复子串为"abc"长度为3
 **返回参数即为最长无重复子串的长度
@@ -470,7 +524,7 @@ int Template::Longest_substring(string s)
 			low = max(itr->second, low);
 		}
 		bool flag;
-		flag = hash_map.insert({ s[high], high + 1 }).second;
+		flag = hash_map.insert({s[high], high + 1}).second;
 		if (!flag)
 		{
 			hash_map[s[high]] = high + 1;
@@ -583,6 +637,7 @@ Template::union_find::union_find(int n)
 		weight[i] = 1;
 	}
 }
+
 int Template::union_find::find(int x)
 {
 	if (x != id[x])
@@ -591,6 +646,7 @@ int Template::union_find::find(int x)
 	}
 	return x;
 }
+
 void Template::union_find::Union(int x1, int x2)
 {
 	int x1_id = find(x1);
