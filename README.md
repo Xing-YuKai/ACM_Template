@@ -17,6 +17,7 @@
 <li>SPFA(负环判断)</li>
 <li>Floyd(路径记录)</li>
 <li>Prim</li>
+<li>Kruskal</li>
 <li>最长无重复子串</li>
 <li>Manacher算法</li>
 <li>KMP算法</li>
