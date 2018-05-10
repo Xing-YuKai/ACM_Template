@@ -11,6 +11,7 @@
 #include <limits>
 #include <iostream>
 #include <functional>
+#include <cstring>
 
 using namespace std;
 
@@ -59,6 +60,40 @@ public:
 	/* Kruskal */
 	int kruskal(vector<pair<int, pair<int, int>>> &edges);
 
+	/* Dinic(最大流) */
+	class Dinic
+	{
+	public:
+		struct edge
+		{
+			int v, flow, capacity, reverse;
+		};//v：边终点  flow：边流量  capacity：边容量  reverse：反向边边终点的下标
+		int v_num;		//点的数量-1
+		int *level;		//点的层级
+		vector<edge> *adjacency_list;
+
+		Dinic(int v_num)
+		{
+			adjacency_list = new vector<edge>[v_num];
+			level = new int[v_num];
+			this->v_num = v_num;
+		}
+
+		add_edge(int u, int v, int capacity)
+		{
+			edge a{v, 0, capacity, adjacency_list[v].size()};
+			edge b{u, 0, 0, adjacency_list[u].size()};
+			adjacency_list[u].push_back(a);
+			adjacency_list[v].push_back(b);
+		}
+
+		bool BFS(int start, int end);
+
+		int DFS(int cur, int end, int flow, int *current);
+
+		int max_flow(int start, int end);
+	};
+
 	/* 最长无重复子串 */
 	int Longest_substring(string s);
 
@@ -85,7 +120,7 @@ private:
 
 	void quick_sort_recursive(vector<int> &target, int start, int end);
 
-	const int INF = numeric_limits<int>::max();
+	static const int INF = numeric_limits<int>::max();
 };
 
 
@@ -215,7 +250,7 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 		if (target[j] < pivot_element)
 			std::swap(target[flag++], target[j]);
 	}
-	std::swap(target[flag], target[end]);
+	swap(target[flag], target[end]);
 	quick_sort_recursive(target, start, flag - 1);
 	quick_sort_recursive(target, flag + 1, end);
 }
@@ -503,6 +538,73 @@ int Template::kruskal(vector<pair<int, pair<int, int>>> &edges)
 		}
 	}
 	return weight;
+}
+
+
+/*Dinic (最大流)
+**参数start为起点end为终点,返回参数为start到end的最大流
+***解释:1.通过BFS构建各个点的层级图(level)
+***    2.若成功访问至终点,则多次通过DFS由层级图进行增广,用current记录曾经访问过的边(优化)
+***    3.当BFS无法再访问至终点时,返回结果为最大流
+*/
+bool Template::Dinic::BFS(int start, int end)
+{
+	memset(level, -1, sizeof(level));
+	level[start] = 0;
+	queue<int> que;
+	que.push(start);
+	while (!que.empty())
+	{
+		int tmp = que.front();
+		que.pop();
+		for (int i = 0; i < adjacency_list[tmp].size(); i++)
+		{
+			edge &e = adjacency_list[tmp][i];
+			if (level[e.v] == -1 && e.flow < e.capacity)
+			{
+				level[e.v] = level[tmp] + 1;
+				que.push(e.v);
+			}
+		}
+	}
+	return level[end] != -1;
+}
+
+int Template::Dinic::DFS(int cur, int end, int flow, int *current)
+{
+	if (cur == end)
+		return flow;
+	for (; current[cur] < adjacency_list[cur].size(); current[cur]++)
+	{
+		edge &e = adjacency_list[cur][current[cur]];
+
+		if (level[e.v] == level[u] + 1 && e.flow < e.capacity)
+		{
+			int curr_flow = min(flow, e.capacity - e.flow);
+			int temp_flow = DFS(e.v, end, curr_flow, current);
+			if (temp_flow > 0)
+			{
+				e.flow += temp_flow;
+				adjacency_list[e.v][e.reverse].flow -= temp_flow;
+				return temp_flow;
+			}
+		}
+	}
+	return 0;
+}
+
+int Template::Dinic::max_flow(int start, int end)
+{
+	if (start == end)
+		return -1;
+	int res = 0;
+	while (BFS(start, end))
+	{
+		int *current = new int[v_num + 1];
+		while (int flow = DFS(start, end, INF, current))
+			res += flow;
+	}
+	return res;
 }
 
 
