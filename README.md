@@ -18,6 +18,7 @@
 <li>Floyd(路径记录)</li>
 <li>Prim</li>
 <li>Kruskal</li>
+<li>Dinic(最大流)</li>
 <li>最长无重复子串</li>
 <li>Manacher算法</li>
 <li>KMP算法</li>
