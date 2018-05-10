@@ -79,7 +79,7 @@ public:
 			this->v_num = v_num;
 		}
 
-		add_edge(int u, int v, int capacity)
+		void add_edge(int u, int v, int capacity)
 		{
 			edge a{v, 0, capacity, adjacency_list[v].size()};
 			edge b{u, 0, 0, adjacency_list[u].size()};
@@ -578,7 +578,7 @@ int Template::Dinic::DFS(int cur, int end, int flow, int *current)
 	{
 		edge &e = adjacency_list[cur][current[cur]];
 
-		if (level[e.v] == level[u] + 1 && e.flow < e.capacity)
+		if (level[e.v] == level[cur] + 1 && e.flow < e.capacity)
 		{
 			int curr_flow = min(flow, e.capacity - e.flow);
 			int temp_flow = DFS(e.v, end, curr_flow, current);
