@@ -11,99 +11,81 @@
 #include <limits>
 #include <iostream>
 #include <functional>
-#include <cstring>
 
 using namespace std;
 
 class Template
 {
 public:
-	/* Eratosthenes筛法 */
+	/* ---------------------------------------Eratosthenes筛法--------------------------------------- */
 	vector<bool> Eratosthenes_Sieve(int n);
 
-	/* 欧几里得算法 */
+	/* ------------------------------------------欧几里得算法----------------------------------------- */
 	int gcd(int a, int b);
 
-	/* 扩展欧几里得算法 */
+	/* ----------------------------------------扩展欧几里得算法---------------------------------------- */
 	void ex_gcd(int a, int b, int &x, int &y);
 
-	/* 分解质因数 */
+	/* -------------------------------------------分解质因数------------------------------------------ */
 	vector<int> Prime_Factor(int n);
 
-	/* 归并排序 */
+	/* --------------------------------------------归并排序------------------------------------------- */
 	void merge_sort(vector<int> &target);
 
-	/* 快速排序 */
+	/* --------------------------------------------快速排序------------------------------------------- */
 	void quick_sort(vector<int> &target);
 
-	/* 广度优先搜索 */
+	/* -------------------------------------------链式前向星------------------------------------------ */
+	struct edge
+	{
+		int v, next;//edges数组存储所有的边，v表示该边的终点，next表示与该边同起点的下一条边所在edges中的位置
+	} edges[1000];
+	int head[500] = {-1};//head数组存储以下标值为起点的最后一条边所在edges数组中的位置
+	int counter = 0;    //counter用来遍历edges数组 
+	void add_edge(int u, int v)
+	{
+		edges[counter].v = v;
+		edges[counter].next = head[u];
+		head[u] = counter++;
+	}
+
+	void traverse(int u)
+	{ for (int i = head[u]; i != -1; i = edges[i].next); }
+
+	/* ------------------------------------------广度优先搜索------------------------------------------ */
 	void BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source);
 
-	/* 深度优先搜索 */
+	/* ------------------------------------------深度优先搜索------------------------------------------ */
 	void DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source);
 
-	/* 拓扑排序 */
+	/* -------------------------------------------拓扑排序-------------------------------------------- */
 	vector<int> topological_sort(vector<list<int>> adjacency_list);
 
-	/* Dijkstra(堆优化)*/
+	/* ----------------------------------------Dijkstra(堆优化)--------------------------------------- */
 	void dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source);
 
-	/* SPFA(负环判断) */
+	/* -----------------------------------------SPFA(负环判断)---------------------------------------- */
 	void SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain, vector<int> &Distance, int source);
 
-	/* Floyd(路径记录)*/
+	/* ----------------------------------------Floyd(路径记录)-----------------------------------------*/
 	void Floyd(vector<vector<int>> adjacency_matrix, vector<vector<int>> &Distance, vector<vector<int>> &next_vertex);
 
-	/* Prim */
+	/* --------------------------------------------Prim---------------------------------------------- */
 	void prim(vector<vector<int>> adjacency_matrix, vector<int> &weight, vector<int> &previous);
 
-	/* Kruskal */
+	/* -------------------------------------------Kruskal-------------------------------------------- */
 	int kruskal(vector<pair<int, pair<int, int>>> &edges);
 
-	/* Dinic(最大流) */
-	class Dinic
-	{
-	public:
-		struct edge
-		{
-			int v, flow, capacity, reverse;
-		};//v：边终点  flow：边流量  capacity：边容量  reverse：反向边边终点的下标
-		int v_num;		//点的数量-1
-		int *level;		//点的层级
-		vector<edge> *adjacency_list;
-
-		Dinic(int v_num)
-		{
-			adjacency_list = new vector<edge>[v_num];
-			level = new int[v_num];
-			this->v_num = v_num;
-		}
-
-		void add_edge(int u, int v, int capacity)
-		{
-			edge a{v, 0, capacity, adjacency_list[v].size()};
-			edge b{u, 0, 0, adjacency_list[u].size()};
-			adjacency_list[u].push_back(a);
-			adjacency_list[v].push_back(b);
-		}
-
-		bool BFS(int start, int end);
-
-		int DFS(int cur, int end, int flow, int *current);
-
-		int max_flow(int start, int end);
-	};
-
-	/* 最长无重复子串 */
+	/* -----------------------------------------最长无重复子串----------------------------------------- */
 	int Longest_substring(string s);
 
-	/* Manacher算法(最长回文)*/
+	/* --------------------------------------Manacher算法(最长回文)-------------------------------------*/
 	pair<int, int> manacher(string &s);
 
-	/* KMP(字符串匹配)*/
+	/* -----------------------------------------KMP(字符串匹配)-----------------------------------------*/
 	int KMP(string a, string b);
 
-	/* 并查集(加权优化+路径压缩)*/
+	/* -------------------------------------并查集(加权优化+路径压缩)-------------------------------------*/
 	class union_find
 	{
 	public:
@@ -119,8 +101,6 @@ private:
 	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
 
 	void quick_sort_recursive(vector<int> &target, int start, int end);
-
-	static const int INF = numeric_limits<int>::max();
 };
 
 
@@ -250,7 +230,7 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 		if (target[j] < pivot_element)
 			std::swap(target[flag++], target[j]);
 	}
-	swap(target[flag], target[end]);
+	std::swap(target[flag], target[end]);
 	quick_sort_recursive(target, start, flag - 1);
 	quick_sort_recursive(target, flag + 1, end);
 }
@@ -260,7 +240,7 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 **参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连
 **		   source代表起点
 **         known若为true则代表此点曾经访问过，默认为false
-***解释：以广度优先的方式从起点source开始遍历整个图
+***解释：以广度优先的方式从起点source开始遍历整个图         
 */
 void Template::BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source)
 {
@@ -286,7 +266,7 @@ void Template::BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, in
 **参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连
 **		   source代表起点
 **         known若为true则代表此点曾经访问过，默认为false
-***解释：以深度优先的方式从起点source开始遍历整个图
+***解释：以深度优先的方式从起点source开始遍历整个图    
 */
 void Template::DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source)
 {
@@ -363,32 +343,44 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 /*Dijkstra(堆优化)
 **参数列表中:adjacency_matrix[a][b]的值若为INF则代表a不与b相连，若值大于0则为a到b的边的权重
 **		   source代表原点，以该点进行路径计算
-**         known若为true则代表此点已经确认，默认为false
+**         known若为true则代表此点曾经访问过，默认为false
 **         Distance代表此点与原点的最短路径，默认为INF
 **         (Distance与adjacency_matrix的默认值INF应视题意做出调整,INF默认为numeric_limits<int>::max())
 ***解释:1.获取优先队列(小顶堆)que的顶元素
-***    2.访问所有该点所指向的未被确认点，并对其进行松弛
-***    3.若松弛成功，则将其压入优先队列中
+***    2.访问所有该点所指向的点，并对其进行松弛
+***    3.若被松弛的点从未被访问过，则将其压入优先队列中
 */
 void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source)
 {
+	/*cmp 函数 此处无法实现
+	struct cmp  
+    {  
+        bool operator()(int a,int b)  
+        {   
+            return Distance[a]>Distance[b];  
+        }   
+    }; 
+	*/
 	Distance[source] = 0;
-	priority_queue<pair<int, int>, vector<pair<int, int>, greater<pair<int, int>>> que;
-	que.push({Distance[source], source});
+	priority_queue<int, vector<int>> que;    //此处需改写为priority_queue<int, vector<int>,cmp> que;
+	que.push(source);
 	while (!que.empty())
 	{
-		pair<int, int> tmp = que.top();
-		int vertex = tmp.second;
-		known[vertex] = true;
+		int tmp = que.top();
+		known[tmp] = true;
 		que.pop();
-		for (int i = 0; i < adjacency_matrix[vertex].size(); i++)
+		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
 		{
-			if (adjacency_matrix[vertex][i] == INF)
+			if (adjacency_matrix[tmp][i] == numeric_limits<int>::max())
 				continue;
-			if (!known[i] && Distance[i] > Distance[vertex] + adjacency_matrix[vertex][i])
+			if (Distance[i] > Distance[tmp] + adjacency_matrix[tmp][i])
 			{
-				Distance[i] = Distance[vertex] + adjacency_matrix[vertex][i];
-				que.push({Distance[i], i});
+				Distance[i] = Distance[tmp] + adjacency_matrix[tmp][i];
+				if (!known[i])
+				{
+					known[i] = true;
+					que.push(i);
+				}
 			}
 		}
 	}
@@ -396,7 +388,7 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &know
 
 
 /*SPFA(负环判断)
-**参数列表中:adjacency_matrix[a][b]的值若为INF则代表a不与b相连，若值非INF则为a到b的边的权重
+**参数列表中:adjacency_matrix[a][b]的值若为INF则代表a不与b相连，若值非0则为a到b的边的权重
 **		   source代表原点，以该点进行路径计算
 **         contain若为true则代表此点在队列当中，默认为false
 **         Distance代表此点与原点的最短路径，默认为INF
@@ -538,73 +530,6 @@ int Template::kruskal(vector<pair<int, pair<int, int>>> &edges)
 		}
 	}
 	return weight;
-}
-
-
-/*Dinic (最大流)
-**参数start为起点end为终点,返回参数为start到end的最大流
-***解释:1.通过BFS构建各个点的层级图(level)
-***    2.若成功访问至终点,则多次通过DFS由层级图进行增广,用current记录曾经访问过的边(优化)
-***    3.当BFS无法再访问至终点时,返回结果为最大流
-*/
-bool Template::Dinic::BFS(int start, int end)
-{
-	memset(level, -1, sizeof(level));
-	level[start] = 0;
-	queue<int> que;
-	que.push(start);
-	while (!que.empty())
-	{
-		int tmp = que.front();
-		que.pop();
-		for (int i = 0; i < adjacency_list[tmp].size(); i++)
-		{
-			edge &e = adjacency_list[tmp][i];
-			if (level[e.v] == -1 && e.flow < e.capacity)
-			{
-				level[e.v] = level[tmp] + 1;
-				que.push(e.v);
-			}
-		}
-	}
-	return level[end] != -1;
-}
-
-int Template::Dinic::DFS(int cur, int end, int flow, int *current)
-{
-	if (cur == end)
-		return flow;
-	for (; current[cur] < adjacency_list[cur].size(); current[cur]++)
-	{
-		edge &e = adjacency_list[cur][current[cur]];
-
-		if (level[e.v] == level[cur] + 1 && e.flow < e.capacity)
-		{
-			int curr_flow = min(flow, e.capacity - e.flow);
-			int temp_flow = DFS(e.v, end, curr_flow, current);
-			if (temp_flow > 0)
-			{
-				e.flow += temp_flow;
-				adjacency_list[e.v][e.reverse].flow -= temp_flow;
-				return temp_flow;
-			}
-		}
-	}
-	return 0;
-}
-
-int Template::Dinic::max_flow(int start, int end)
-{
-	if (start == end)
-		return -1;
-	int res = 0;
-	while (BFS(start, end))
-	{
-		int *current = new int[v_num + 1];
-		while (int flow = DFS(start, end, INF, current))
-			res += flow;
-	}
-	return res;
 }
 
 
