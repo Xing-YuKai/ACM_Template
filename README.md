@@ -10,6 +10,7 @@
 <li>分解质因数</li>
 <li>归并排序</li>
 <li>快速排序</li>
+<li>链式前向星(图的存储)</li>
 <li>BFS</li>
 <li>DFS</li>
 <li>拓扑排序</li>
