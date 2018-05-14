@@ -81,7 +81,7 @@ public:
 	class Dinic
 	{
 	public:
-		const int SIZE = 2000;
+		static const int SIZE = 2000;
 		struct edge
 		{
 			int v, next, capacity, flow;
@@ -103,6 +103,32 @@ public:
 		int DFS(int cur, int end, int flow);
 
 		int max_flow(int start, int end);
+	};
+
+	/* --------------------------------------MCMF(最小费用最大流)-------------------------------------- */
+	class MCMF
+	{
+	public:
+		static const int SIZE = 2000;
+		struct edge
+		{
+			int u, v, next, capacity, flow, cost;
+		} edges[SIZE];
+		int head[SIZE], Distance[SIZE], contain[SIZE], current_flow[SIZE], path[SIZE];
+		int counter, v_num;
+
+		MCMF(int v_num)
+		{
+			counter = 0;
+			memset(head, 0xff, sizeof(head));
+			this->v_num = v_num;
+		}
+
+		void add_edge(int u, int v, int cost, int capacity);
+
+		bool SPFA(int start, int end, int &flow, int &cost);
+
+		pair<int, int> mincost_maxflow(int start, int end);
 	};
 
 	/* -----------------------------------------最长无重复子串----------------------------------------- */
@@ -131,7 +157,7 @@ private:
 
 	void quick_sort_recursive(vector<int> &target, int start, int end);
 
-	const int INF = numeric_limits<int>::max();
+	static const int INF = numeric_limits<int>::max();
 };
 
 
@@ -560,18 +586,13 @@ int Template::kruskal(vector<pair<int, pair<int, int>>> &edges)
 ***解释:1.通过BFS构建各个点的层级图(level)
 ***    2.若成功访问至终点,则多次通过DFS由层级图进行增广,用current记录曾经访问过的边(优化)
 ***    3.当BFS无法再访问至终点时,返回结果为最大流
+***    (level记录一次BFS后该点的层级,current记录以该点为起点的下一条边在edges中的下标)
 */
 void Template::Dinic::add_edge(int u, int v, int capacity)
 {
-	edges[counter].v = v;
-	edges[counter].capacity = capacity;
-	edges[counter].flow = 0;
-	edges[counter].next = head[u];
+	edges[counter] = {v, head[u], capacity, 0};
 	head[u] = counter++;
-	edges[counter].v = u;
-	edges[counter].capacity = 0;
-	edges[counter].flow = 0;
-	edges[counter].next = head[v];
+	edges[counter] = {u, head[v], 0, 0};
 	head[v] = counter++;
 }
 
@@ -630,6 +651,75 @@ int Template::Dinic::max_flow(int start, int end)
 			res += flow;
 	}
 	return res;
+}
+
+
+/*MCMF(最小费用最大流)
+**参数:start为起点,end为终点,返回参数.first为最大流.second为最小费用
+***解释:1.通过SPFA算法找出总费用最小的增广路径
+***    2. 松弛成功后需记录下在该点的流量,与所经路径
+***    3.一轮SPFA结束后更新总流量与总费用,并更新增广路径中所有边的流量与反向边的流量
+***    (current_flow记录流过该节点的流量,path记录在最小费用增广路径中以该点为终点的边所在edges中的下标)
+*/
+void Template::MCMF::add_edge(int u, int v, int cost, int capacity)
+{
+	edges[counter] = {u, v, head[u], capacity, 0, cost};
+	head[u] = counter++;
+	edges[counter] = {v, u, head[v], 0, 0, -cost};
+	head[v] = counter++;
+}
+
+bool Template::MCMF::SPFA(int start, int end, int &flow, int &cost)
+{
+	for (int i = 0; i < v_num; i++)
+	{
+		Distance[i] = INF;
+		contain[i] = 0;
+	}
+	queue<int> que;
+	Distance[start] = 0;
+	contain[start] = 1;
+	path[start] = 0;
+	current_flow[start] = INF;
+	que.push(start);
+	while (!que.empty())
+	{
+		int tmp = que.front();
+		que.pop();
+		contain[tmp] = 0;
+		for (int i = head[tmp]; i != -1; i = edges[i].next)
+		{
+			edge &e = edges[i];
+			if (Distance[e.v] > Distance[tmp] + e.cost && e.capacity > e.flow)
+			{
+				Distance[e.v] = Distance[tmp] + e.cost;
+				path[e.v] = i;
+				current_flow[e.v] = min(current_flow[tmp], e.capacity - e.flow);
+				if (!contain[e.v])
+				{
+					que.push(e.v);
+					contain[e.v] = 1;
+				}
+			}
+		}
+	}
+	if (Distance[end] == INF)
+		return false;
+	flow += current_flow[end];
+	cost += Distance[end] * current_flow[end];
+	for (int i = end; i != start; i = edges[path[i]].u)
+	{
+		edges[path[i]].flow += current_flow[end];
+		edges[path[i] ^ 1].flow -= current_flow[end];
+	}
+	return true;
+}
+
+pair<int, int> Template::MCMF::mincost_maxflow(int start, int end)
+{
+	int flow = 0, cost = 0;
+	while (SPFA(start, end, flow, cost));
+	return {flow, cost};
 }
 
 
