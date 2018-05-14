@@ -11,6 +11,7 @@
 #include <limits>
 #include <iostream>
 #include <functional>
+#include <cstring>
 
 using namespace std;
 
@@ -41,7 +42,7 @@ public:
 		int v, next;//edges数组存储所有的边，v表示该边的终点，next表示与该边同起点的下一条边所在edges中的位置
 	} edges[1000];
 	int head[500] = {-1};//head数组存储以下标值为起点的最后一条边所在edges数组中的位置
-	int counter = 0;    //counter用来遍历edges数组 
+	int counter = 0;    //counter用来遍历edges数组
 	void add_edge(int u, int v)
 	{
 		edges[counter].v = v;
@@ -76,6 +77,34 @@ public:
 	/* -------------------------------------------Kruskal-------------------------------------------- */
 	int kruskal(vector<pair<int, pair<int, int>>> &edges);
 
+	/* -----------------------------------------Dinic(最大流)----------------------------------------- */
+	class Dinic
+	{
+	public:
+		const int SIZE = 2000;
+		struct edge
+		{
+			int v, next, capacity, flow;
+		} edges[SIZE];
+		int head[SIZE], level[SIZE], current[SIZE];
+		int counter, v_num;
+
+		Dinic(int v_num)
+		{
+			counter = 0;
+			memset(head, 0xff, sizeof(head));
+			this->v_num = v_num;
+		}
+
+		void add_edge(int u, int v, int capacity);
+
+		bool BFS(int start, int end);
+
+		int DFS(int cur, int end, int flow);
+
+		int max_flow(int start, int end);
+	};
+
 	/* -----------------------------------------最长无重复子串----------------------------------------- */
 	int Longest_substring(string s);
 
@@ -85,7 +114,7 @@ public:
 	/* -----------------------------------------KMP(字符串匹配)-----------------------------------------*/
 	int KMP(string a, string b);
 
-	/* -------------------------------------并查集(加权优化+路径压缩)-------------------------------------*/
+	/* -------------------------------------并查集(按秩合并+路径压缩)-------------------------------------*/
 	class union_find
 	{
 	public:
@@ -101,6 +130,8 @@ private:
 	void merge_sort_recursive(vector<int> &target, std::vector<int> &copy, size_t start, size_t end);
 
 	void quick_sort_recursive(vector<int> &target, int start, int end);
+
+	const int INF = numeric_limits<int>::max();
 };
 
 
@@ -240,7 +271,7 @@ void Template::quick_sort_recursive(vector<int> &target, int start, int end)
 **参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连
 **		   source代表起点
 **         known若为true则代表此点曾经访问过，默认为false
-***解释：以广度优先的方式从起点source开始遍历整个图         
+***解释：以广度优先的方式从起点source开始遍历整个图
 */
 void Template::BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source)
 {
@@ -266,7 +297,7 @@ void Template::BFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, in
 **参数列表中:adjacency_matrix[a][b]的值若为0则代表a不与b相连
 **		   source代表起点
 **         known若为true则代表此点曾经访问过，默认为false
-***解释：以深度优先的方式从起点source开始遍历整个图    
+***解释：以深度优先的方式从起点source开始遍历整个图
 */
 void Template::DFS(vector<vector<int>> adjacency_matrix, vector<bool> &known, int source)
 {
@@ -353,13 +384,13 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source)
 {
 	/*cmp 函数 此处无法实现
-	struct cmp  
-    {  
-        bool operator()(int a,int b)  
-        {   
-            return Distance[a]>Distance[b];  
-        }   
-    }; 
+	struct cmp
+    {
+        bool operator()(int a,int b)
+        {
+            return Distance[a]>Distance[b];
+        }
+    };
 	*/
 	Distance[source] = 0;
 	priority_queue<int, vector<int>> que;    //此处需改写为priority_queue<int, vector<int>,cmp> que;
@@ -530,6 +561,84 @@ int Template::kruskal(vector<pair<int, pair<int, int>>> &edges)
 		}
 	}
 	return weight;
+}
+
+
+/*Dinic (最大流)
+**参数start为起点end为终点,返回参数为start到end的最大流
+***解释:1.通过BFS构建各个点的层级图(level)
+***    2.若成功访问至终点,则多次通过DFS由层级图进行增广,用current记录曾经访问过的边(优化)
+***    3.当BFS无法再访问至终点时,返回结果为最大流
+*/
+void Template::Dinic::add_edge(int u, int v, int capacity)
+{
+	edges[counter].v = v;
+	edges[counter].capacity = capacity;
+	edges[counter].flow = 0;
+	edges[counter].next = head[u];
+	head[u] = counter++;
+	edges[counter].v = u;
+	edges[counter].capacity = 0;
+	edges[counter].flow = 0;
+	edges[counter].next = head[v];
+	head[v] = counter++;
+}
+
+bool Template::Dinic::BFS(int start, int end)
+{
+	memset(level, 0xff, sizeof(level));
+	level[start] = 0;
+	queue<int> que;
+	que.push(start);
+	while (!que.empty())
+	{
+		int tmp = que.front();
+		que.pop();
+		for (int i = head[tmp]; i != -1; i = edges[i].next)
+		{
+			if (level[edges[i].v] == -1 && edges[i].flow < edges[i].capacity)
+			{
+				level[edges[i].v] = level[tmp] + 1;
+				que.push(edges[i].v);
+			}
+		}
+	}
+	return level[end] != -1;
+}
+
+int Template::Dinic::DFS(int cur, int end, int flow)
+{
+	if (cur == end)
+		return flow;
+	for (int &i = current[cur]; i != -1; i = edges[i].next)
+	{
+		if (level[edges[i].v] == level[cur] + 1 && edges[i].flow < edges[i].capacity)
+		{
+			int next_flow = DFS(edges[i].v, end, min(flow, edges[i].capacity - edges[i].flow));
+			if (next_flow > 0)
+			{
+				edges[i].flow += next_flow;
+				edges[i ^ 1].flow -= next_flow;
+				return next_flow;
+			}
+		}
+	}
+	return 0;
+}
+
+int Template::Dinic::max_flow(int start, int end)
+{
+	if (start == end)
+		return -1;
+	int res = 0;
+	while (BFS(start, end))
+	{
+		for (int i = 0; i < v_num; i++)
+			current[i] = head[i];
+		while (long long flow = DFS(start, end, INF))
+			res += flow;
+	}
+	return res;
 }
 
 
