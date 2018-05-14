@@ -383,26 +383,17 @@ vector<int> Template::topological_sort(vector<list<int>> adjacency_list)
 */
 void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &known, vector<int> &Distance, int source)
 {
-	/*cmp 函数 此处无法实现
-	struct cmp
-    {
-        bool operator()(int a,int b)
-        {
-            return Distance[a]>Distance[b];
-        }
-    };
-	*/
 	Distance[source] = 0;
-	priority_queue<int, vector<int>> que;    //此处需改写为priority_queue<int, vector<int>,cmp> que;
-	que.push(source);
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> que;
+	que.push({Distance[source], source});
 	while (!que.empty())
 	{
-		int tmp = que.top();
+		int tmp = que.top().second;
 		known[tmp] = true;
 		que.pop();
 		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
 		{
-			if (adjacency_matrix[tmp][i] == numeric_limits<int>::max())
+			if (adjacency_matrix[tmp][i] == INF)
 				continue;
 			if (Distance[i] > Distance[tmp] + adjacency_matrix[tmp][i])
 			{
@@ -410,7 +401,7 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &know
 				if (!known[i])
 				{
 					known[i] = true;
-					que.push(i);
+					que.push({Distance[i], i});
 				}
 			}
 		}
@@ -444,7 +435,7 @@ void Template::SPFA(vector<vector<int>> adjacency_matrix, vector<bool> &contain,
 		contain[tmp] = false;
 		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
 		{
-			if (adjacency_matrix[tmp][i] == numeric_limits<int>::max())
+			if (adjacency_matrix[tmp][i] == INF)
 				continue;
 			if (Distance[i] > Distance[tmp] + adjacency_matrix[tmp][i])
 			{
