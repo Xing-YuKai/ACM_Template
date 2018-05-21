@@ -78,9 +78,8 @@ public:
 	int kruskal(vector<pair<int, pair<int, int>>> &edges);
 
 	/* -----------------------------------------Dinic(最大流)----------------------------------------- */
-	class Dinic
+	struct Dinic
 	{
-	public:
 		static const int SIZE = 2000;
 		struct edge
 		{
@@ -106,9 +105,8 @@ public:
 	};
 
 	/* --------------------------------------MCMF(最小费用最大流)-------------------------------------- */
-	class MCMF
+	struct MCMF
 	{
-	public:
 		static const int SIZE = 2000;
 		struct edge
 		{
@@ -141,15 +139,28 @@ public:
 	int KMP(string a, string b);
 
 	/* -------------------------------------并查集(按秩合并+路径压缩)-------------------------------------*/
-	class union_find
+	struct union_find
 	{
-	public:
 		union_find(int n);                //初始化(共含有n个点)
 		int find(int x);                //获取点x所属的连通分量的id
 		void Union(int x1, int x2);        //连接点x1与x2
-	private:
 		vector<int> id;                    //每个点所属的连通分量的id
 		vector<int> weight;                //每个连通分量所含的点数(权重)
+	};
+
+	/* -----------------------------------------BIT(二叉索引树)-----------------------------------------*/
+	struct BIT
+	{
+		static const int SIZE = 1000;
+		int c[SIZE];
+
+		int lowbit(int x)
+		{ return x & (-x); }
+
+		int sum(int x);
+
+		void add(int x, int d)
+
 	};
 
 private:
@@ -879,4 +890,28 @@ void Template::union_find::Union(int x1, int x2)
 		id[x1_id] = x2_id;
 		weight[x2_id] += weight[x1_id];
 	}
+}
+
+/*BIT(二叉索引树)
+**lowbit(x)返回x二进制中从右至左第一个1为止的数的值
+**数组c[x]存储区间(x-lowbit(x),x]的合
+**sum(x)计算第1~x的元素的合 
+**add(x,d)将第x元素增加d
+*/
+int Template::BIT::sum(int x)
+{
+
+	int res = 0;
+	for (int i = x; i > 0; i -= lowbit(i))
+		res += c[i];
+	return res;
+
+}
+
+void Template::BIT::add(int x, int d)
+{
+
+	for (int i = x; i <= SIZE; i += lowbit(i))
+		c[i] += d;
+
 }
