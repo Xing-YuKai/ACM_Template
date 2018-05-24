@@ -426,8 +426,10 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &know
 	while (!que.empty())
 	{
 		int tmp = que.top().second;
-		known[tmp] = true;
 		que.pop();
+		if(known[tmp])
+			continue;
+		known[tmp] = true;
 		for (int i = 0; i < adjacency_matrix[tmp].size(); i++)
 		{
 			if (adjacency_matrix[tmp][i] == INF)
@@ -435,11 +437,7 @@ void Template::dijkstra(vector<vector<int>> adjacency_matrix, vector<bool> &know
 			if (Distance[i] > Distance[tmp] + adjacency_matrix[tmp][i])
 			{
 				Distance[i] = Distance[tmp] + adjacency_matrix[tmp][i];
-				if (!known[i])
-				{
-					known[i] = true;
-					que.push({Distance[i], i});
-				}
+				que.push({Distance[i], i});
 			}
 		}
 	}
