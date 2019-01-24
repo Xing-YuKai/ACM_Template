@@ -24,7 +24,6 @@
 <li>最长无重复子串</li>
 <li>Manacher算法</li>
 <li>KMP算法</li>
-<li>Bash博弈</li>
 <li>并查集(按秩合并+路径压缩)</li>
 <li>二叉索引树</li>
 </ol>
